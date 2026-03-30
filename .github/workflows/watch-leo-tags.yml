@@ -1,0 +1,206 @@
+# Watches the Leo repo for new stable release tags and prepares a sync PR.
+# - Runs hourly and can also be triggered manually with a specific `leo_ref`.
+# - Regenerates the shipped VS Code TextMate grammar from the selected Leo ref.
+# - Pushes changes to the fixed automation branch `automation/sync-leo-release`.
+# - Opens or updates a reviewable PR; it does not publish the extension.
+# - Optionally uses `LEO_REPO_READ_TOKEN` when GitHub Actions needs explicit
+#   read access to `ProvableHQ/leo`.
+
+name: Watch Leo Tags
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+    inputs:
+      leo_ref:
+        description: "Leo tag or ref to sync instead of the latest stable release tag"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: leo-tag-sync
+  cancel-in-progress: false
+
+jobs:
+  open-sync-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout leo-lsp-clients
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      - name: Resolve Leo sync target
+        id: target
+        env:
+          GH_TOKEN: ${{ secrets.LEO_REPO_READ_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          args=(
+            node ./scripts/resolve-leo-sync-target.mjs
+            --config ./.github/leo-tag-sync.json
+            --metadata ./packages/vscode/generated-from-leo.json
+            --github-output "$GITHUB_OUTPUT"
+          )
+
+          if [ -n "${{ github.event.inputs.leo_ref }}" ]; then
+            args+=(--leo-ref "${{ github.event.inputs.leo_ref }}")
+          fi
+
+          "${args[@]}"
+
+      - name: Stop when no sync is needed
+        if: steps.target.outputs.should_sync != 'true'
+        run: echo "No new Leo release tag needs syncing."
+
+      - name: Check whether the automation branch already targets this ref
+        if: steps.target.outputs.should_sync == 'true'
+        id: branch_state
+        env:
+          SYNC_BRANCH: ${{ steps.target.outputs.sync_branch }}
+          TARGET_REF: ${{ steps.target.outputs.target_ref }}
+          TARGET_COMMIT: ${{ steps.target.outputs.target_commit }}
+        run: |
+          set -euo pipefail
+
+          git fetch origin "$SYNC_BRANCH:refs/remotes/origin/$SYNC_BRANCH" >/dev/null 2>&1 || true
+
+          if git show "origin/$SYNC_BRANCH:packages/vscode/generated-from-leo.json" >/tmp/existing-generated-from-leo.json 2>/dev/null; then
+            existing_ref="$(jq -r '.sourceRef // ""' /tmp/existing-generated-from-leo.json)"
+            existing_commit="$(jq -r '.resolvedCommit // ""' /tmp/existing-generated-from-leo.json)"
+
+            if [ "$existing_ref" = "$TARGET_REF" ] || { [ -n "$TARGET_COMMIT" ] && [ "$existing_commit" = "$TARGET_COMMIT" ]; }; then
+              echo "already_prepared=true" >>"$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          echo "already_prepared=false" >>"$GITHUB_OUTPUT"
+
+      - name: Stop when the automation branch is already up to date
+        if: steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared == 'true'
+        run: echo "An automation branch already exists for this Leo release ref."
+
+      - name: Checkout Leo repo
+        if: steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true'
+        uses: actions/checkout@v5
+        with:
+          repository: ProvableHQ/leo
+          path: leo
+          fetch-depth: 0
+          token: ${{ secrets.LEO_REPO_READ_TOKEN || github.token }}
+
+      - name: Configure git author
+        if: steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync grammar from the selected Leo ref
+        if: steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true'
+        id: sync
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          SYNC_BRANCH: ${{ steps.target.outputs.sync_branch }}
+          TARGET_REF: ${{ steps.target.outputs.target_ref }}
+        run: |
+          set -euo pipefail
+
+          git switch -C "$SYNC_BRANCH" "origin/$DEFAULT_BRANCH"
+
+          ./scripts/sync-tree-sitter-from-leo.sh ./leo "$TARGET_REF"
+
+          if git diff --quiet -- packages/vscode/generated-from-leo.json packages/vscode/syntaxes/leo.tmLanguage.json; then
+            echo "has_changes=false" >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git add packages/vscode/generated-from-leo.json packages/vscode/syntaxes/leo.tmLanguage.json
+          git commit -m "chore: sync Leo syntax from $TARGET_REF"
+          git push --force-with-lease origin "$SYNC_BRANCH"
+
+          echo "has_changes=true" >>"$GITHUB_OUTPUT"
+
+      - name: Stop when the selected Leo ref produces no repo changes
+        if: steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true' && steps.sync.outputs.has_changes != 'true'
+        run: echo "Sync completed but produced no changes to commit."
+
+      - name: Create or update the sync pull request
+        if: steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true' && steps.sync.outputs.has_changes == 'true'
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GH_TOKEN: ${{ github.token }}
+          PR_TITLE: ${{ steps.target.outputs.pr_title }}
+          SOURCE_REPO: ${{ steps.target.outputs.source_repo }}
+          SYNC_BRANCH: ${{ steps.target.outputs.sync_branch }}
+          TARGET_REF: ${{ steps.target.outputs.target_ref }}
+        run: |
+          set -euo pipefail
+
+          resolved_commit="$(jq -r '.resolvedCommit' packages/vscode/generated-from-leo.json)"
+
+          cat >/tmp/leo-sync-pr-body.md <<EOF
+          ## Summary
+
+          This automation syncs the Leo VS Code grammar from \`$SOURCE_REPO\` at \`$TARGET_REF\`.
+
+          ## What changed
+
+          - regenerated \`packages/vscode/syntaxes/leo.tmLanguage.json\`
+          - updated \`packages/vscode/generated-from-leo.json\`
+
+          ## Source
+
+          - Leo ref: \`$TARGET_REF\`
+          - Resolved Leo commit: \`$resolved_commit\`
+
+          ## Workflow
+
+          Generated by \`.github/workflows/watch-leo-tags.yml\` using:
+          - \`scripts/resolve-leo-sync-target.mjs\`
+          - \`scripts/sync-tree-sitter-from-leo.sh\`
+          - \`scripts/generate-textmate-grammar.mjs\`
+
+          Please review and merge this PR manually. Publishing to the VS Code Marketplace remains a separate manual step.
+          EOF
+
+          jq -n \
+            --arg title "$PR_TITLE" \
+            --arg head "$SYNC_BRANCH" \
+            --arg base "$DEFAULT_BRANCH" \
+            --rawfile body /tmp/leo-sync-pr-body.md \
+            '{title: $title, head: $head, base: $base, body: $body}' \
+            >/tmp/leo-sync-pr.json
+
+          existing_pr_number="$(
+            gh api "repos/$GITHUB_REPOSITORY/pulls" \
+              --method GET \
+              -f state=open \
+              -f head="$GITHUB_REPOSITORY_OWNER:$SYNC_BRANCH" \
+              --jq '.[0].number // ""'
+          )"
+
+          if [ -n "$existing_pr_number" ]; then
+            gh api "repos/$GITHUB_REPOSITORY/pulls/$existing_pr_number" \
+              --method PATCH \
+              --input /tmp/leo-sync-pr.json \
+              --silent
+          else
+            gh api "repos/$GITHUB_REPOSITORY/pulls" \
+              --method POST \
+              --input /tmp/leo-sync-pr.json \
+              --silent
+          fi
