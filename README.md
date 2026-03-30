@@ -18,8 +18,8 @@ Vim, Cursor, Sublime Text, MCP-facing tooling, and shared client infrastructure.
 
 The current implementation work is centered on the VS Code extension:
 
-- syntax highlighting generated from Leo's tree-sitter source in the main
-  `ProvableHQ/leo` repo
+- syntax artifacts generated from Leo's tree-sitter source in the main
+  `ProvableHQ/leo` repo for both VS Code and Prism-based website consumers
 - a lean client-side extension scaffold
 - a clean migration path toward future Rust-based language tooling
 
@@ -29,8 +29,12 @@ The current implementation work is centered on the VS Code extension:
   `packages/vscode/README.md`
 - VS Code developer and release workflow notes:
   `packages/vscode/Developer.md`
+- Shared generated website syntax assets:
+  `packages/shared/README.md`
 - VS Code tag-watching sync automation:
   `.github/workflows/watch-leo-tags.yml`
+- Downstream docs Prism sync automation:
+  `.github/workflows/sync-prism-to-leo-docs.yml`
 - Sync automation configuration:
   `.github/leo-tag-sync.json`
 

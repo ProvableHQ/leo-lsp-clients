@@ -8,7 +8,8 @@ This package contains the Leo 4.0 VS Code extension scaffold for the existing
 - Leo language registration for `.leo` files
 - Leo 4.0-aware TextMate fallback highlighting
 - Approximate workspace-wide go-to-definition for top-level symbols
-- TextMate grammar generated directly from the Leo monorepo tree-sitter source
+- TextMate and Prism syntax artifacts generated directly from the Leo monorepo
+  tree-sitter source
 - No vendored tree-sitter snapshot checked into this repo
 
 ## Syncing Tree-Sitter Source
@@ -34,10 +35,13 @@ The plan is to test from `master` for now, then publish the updated
 extension identity stays the same, existing VS Code users should receive the
 update automatically.
 
-## Generated TextMate Grammar
+## Generated Syntax Artifacts
 
-`packages/vscode/syntaxes/leo.tmLanguage.json` is generated from the Leo
-monorepo tree-sitter source and is not maintained by hand.
+The shipped syntax artifacts are generated from the Leo monorepo tree-sitter
+source and are not maintained by hand:
+
+- `packages/vscode/syntaxes/leo.tmLanguage.json`
+- `packages/shared/syntaxes/prism-leo.js`
 
 The generation flow reads:
 
@@ -45,15 +49,15 @@ The generation flow reads:
 - `tree-sitter/src/grammar.json`
 - `tree-sitter/queries/highlights.scm`
 
-and rebuilds the TextMate grammar via:
+and rebuilds the generated artifacts via:
 
 ```bash
-npm run generate:textmate
+npm run generate:syntaxes
 ```
 
 The sync script runs that generator automatically and also refreshes
-`packages/vscode/generated-from-leo.json`, so the shipped grammar stays aligned
-with Leo while still recording which Leo ref produced it.
+`packages/vscode/generated-from-leo.json`, so the shipped artifacts stay aligned
+with Leo while still recording which Leo ref produced them.
 
 ## Automated Tag Watching
 
@@ -68,10 +72,15 @@ Its behavior is driven by `.github/leo-tag-sync.json`:
 - `syncBranch`: the fixed automation branch used for the sync PR
 - `pullRequestTitlePrefix`: the PR title prefix for generated sync PRs
 
-When a newer stable Leo tag appears, the workflow regenerates the TextMate
-grammar from that tag, updates `generated-from-leo.json`, and opens or updates a
-reviewable PR. It does not publish the extension automatically, so release and
-Marketplace publish remain manual steps after review.
+When a newer stable Leo tag appears, the workflow regenerates the TextMate and
+Prism syntax artifacts from that tag, updates `generated-from-leo.json`, and
+opens or updates a reviewable PR. It does not publish the extension
+automatically, so release and Marketplace publish remain manual steps after
+review.
+
+A companion workflow, `.github/workflows/sync-prism-to-leo-docs.yml`, syncs the
+generated Prism component into `leo-docs` after the shared artifact changes on
+this repository's default branch.
 
 If GitHub Actions needs explicit access to the Leo repo, set
 `LEO_REPO_READ_TOKEN` in this repository's secrets.

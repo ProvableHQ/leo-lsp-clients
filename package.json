@@ -11,6 +11,8 @@
   "scripts": {
     "build": "npm run build --workspace leo-extension",
     "check": "npm run typecheck --workspace leo-extension",
+    "generate:prism": "node ./scripts/generate-prism-grammar.mjs --leo-repo ../leo --leo-ref HEAD",
+    "generate:syntaxes": "node ./scripts/generate-syntax-artifacts.mjs --leo-repo ../leo --leo-ref HEAD",
     "generate:textmate": "node ./scripts/generate-textmate-grammar.mjs --leo-repo ../leo --leo-ref HEAD",
     "package:vscode": "npm run package --workspace leo-extension",
     "sync:tree-sitter": "./scripts/sync-tree-sitter-from-leo.sh ../leo FETCH_HEAD"

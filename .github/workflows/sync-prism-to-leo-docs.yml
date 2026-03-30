@@ -1,0 +1,181 @@
+# Syncs the generated Prism Leo component into leo-docs.
+# - Runs after pushes that update the shared Prism artifact.
+# - Copies `packages/shared/syntaxes/prism-leo.js` into `leo-docs`.
+# - Opens or updates a reviewable PR in the docs repo.
+# - Requires `LEO_DOCS_WRITE_TOKEN` with permission to push branches and open PRs.
+
+name: Sync Prism To Leo Docs
+
+on:
+  push:
+    paths:
+      - ".github/leo-docs-sync.json"
+      - ".github/workflows/sync-prism-to-leo-docs.yml"
+      - "packages/shared/syntaxes/prism-leo.js"
+      - "packages/vscode/generated-from-leo.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync-prism:
+    if: github.event_name == 'workflow_dispatch' || github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout leo-lsp-clients
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Check downstream token availability
+        id: auth
+        env:
+          LEO_DOCS_WRITE_TOKEN: ${{ secrets.LEO_DOCS_WRITE_TOKEN }}
+        run: |
+          if [ -z "$LEO_DOCS_WRITE_TOKEN" ]; then
+            echo "enabled=false" >>"$GITHUB_OUTPUT"
+            echo "LEO_DOCS_WRITE_TOKEN is not configured. Skipping downstream sync."
+            exit 0
+          fi
+
+          echo "enabled=true" >>"$GITHUB_OUTPUT"
+
+      - name: Load downstream sync config
+        id: config
+        if: steps.auth.outputs.enabled == 'true'
+        run: |
+          set -euo pipefail
+
+          echo "target_repo=$(jq -r '.targetRepo' .github/leo-docs-sync.json)" >>"$GITHUB_OUTPUT"
+          echo "target_path=$(jq -r '.targetPath' .github/leo-docs-sync.json)" >>"$GITHUB_OUTPUT"
+          echo "sync_branch=$(jq -r '.syncBranch' .github/leo-docs-sync.json)" >>"$GITHUB_OUTPUT"
+          echo "pr_title_prefix=$(jq -r '.pullRequestTitlePrefix' .github/leo-docs-sync.json)" >>"$GITHUB_OUTPUT"
+
+      - name: Resolve source metadata
+        id: metadata
+        if: steps.auth.outputs.enabled == 'true'
+        run: |
+          set -euo pipefail
+
+          echo "source_ref=$(jq -r '.sourceRef' packages/vscode/generated-from-leo.json)" >>"$GITHUB_OUTPUT"
+          echo "resolved_commit=$(jq -r '.resolvedCommit' packages/vscode/generated-from-leo.json)" >>"$GITHUB_OUTPUT"
+
+      - name: Resolve leo-docs default branch
+        id: repo
+        if: steps.auth.outputs.enabled == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.LEO_DOCS_WRITE_TOKEN }}
+          TARGET_REPO: ${{ steps.config.outputs.target_repo }}
+        run: |
+          set -euo pipefail
+
+          echo "default_branch=$(gh api "repos/$TARGET_REPO" --jq '.default_branch')" >>"$GITHUB_OUTPUT"
+
+      - name: Checkout leo-docs
+        if: steps.auth.outputs.enabled == 'true'
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ steps.config.outputs.target_repo }}
+          path: leo-docs
+          fetch-depth: 0
+          token: ${{ secrets.LEO_DOCS_WRITE_TOKEN }}
+
+      - name: Configure git author
+        if: steps.auth.outputs.enabled == 'true'
+        run: |
+          git -C leo-docs config user.name "github-actions[bot]"
+          git -C leo-docs config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Copy generated Prism file into leo-docs
+        id: sync
+        if: steps.auth.outputs.enabled == 'true'
+        env:
+          DOCS_DEFAULT_BRANCH: ${{ steps.repo.outputs.default_branch }}
+          DOCS_SYNC_BRANCH: ${{ steps.config.outputs.sync_branch }}
+          DOCS_TARGET_PATH: ${{ steps.config.outputs.target_path }}
+        run: |
+          set -euo pipefail
+
+          git -C leo-docs switch -C "$DOCS_SYNC_BRANCH" "origin/$DOCS_DEFAULT_BRANCH"
+          mkdir -p "$(dirname "leo-docs/$DOCS_TARGET_PATH")"
+          cp packages/shared/syntaxes/prism-leo.js "leo-docs/$DOCS_TARGET_PATH"
+
+          if git -C leo-docs diff --quiet -- "$DOCS_TARGET_PATH"; then
+            echo "has_changes=false" >>"$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git -C leo-docs add "$DOCS_TARGET_PATH"
+          git -C leo-docs commit -m "chore: sync Leo Prism syntax from ${{ steps.metadata.outputs.source_ref }}"
+          git -C leo-docs push --force-with-lease origin "$DOCS_SYNC_BRANCH"
+
+          echo "has_changes=true" >>"$GITHUB_OUTPUT"
+
+      - name: Stop when leo-docs already matches the generated Prism file
+        if: steps.auth.outputs.enabled == 'true' && steps.sync.outputs.has_changes != 'true'
+        run: echo "leo-docs already matches the generated Prism artifact."
+
+      - name: Create or update the leo-docs pull request
+        if: steps.auth.outputs.enabled == 'true' && steps.sync.outputs.has_changes == 'true'
+        env:
+          DOCS_DEFAULT_BRANCH: ${{ steps.repo.outputs.default_branch }}
+          DOCS_SYNC_BRANCH: ${{ steps.config.outputs.sync_branch }}
+          GH_TOKEN: ${{ secrets.LEO_DOCS_WRITE_TOKEN }}
+          PR_TITLE_PREFIX: ${{ steps.config.outputs.pr_title_prefix }}
+          RESOLVED_COMMIT: ${{ steps.metadata.outputs.resolved_commit }}
+          SOURCE_REF: ${{ steps.metadata.outputs.source_ref }}
+          TARGET_PATH: ${{ steps.config.outputs.target_path }}
+          TARGET_REPO: ${{ steps.config.outputs.target_repo }}
+        run: |
+          set -euo pipefail
+
+          cat >/tmp/leo-docs-prism-pr-body.md <<EOF
+          ## Summary
+
+          This automation syncs the generated Leo Prism component from \`leo-lsp-clients\` at \`$SOURCE_REF\`.
+
+          ## What changed
+
+          - updated \`$TARGET_PATH\`
+
+          ## Source
+
+          - Leo ref: \`$SOURCE_REF\`
+          - Resolved Leo commit: \`$RESOLVED_COMMIT\`
+
+          ## Workflow
+
+          Generated by \`.github/workflows/sync-prism-to-leo-docs.yml\` from:
+          - \`packages/shared/syntaxes/prism-leo.js\`
+          - \`packages/vscode/generated-from-leo.json\`
+          EOF
+
+          jq -n \
+            --arg title "${PR_TITLE_PREFIX}${SOURCE_REF}" \
+            --arg head "$DOCS_SYNC_BRANCH" \
+            --arg base "$DOCS_DEFAULT_BRANCH" \
+            --rawfile body /tmp/leo-docs-prism-pr-body.md \
+            '{title: $title, head: $head, base: $base, body: $body}' \
+            >/tmp/leo-docs-prism-pr.json
+
+          existing_pr_number="$(
+            gh api "repos/$TARGET_REPO/pulls" \
+              --method GET \
+              -f state=open \
+              -f head="${TARGET_REPO%%/*}:$DOCS_SYNC_BRANCH" \
+              --jq '.[0].number // ""'
+          )"
+
+          if [ -n "$existing_pr_number" ]; then
+            gh api "repos/$TARGET_REPO/pulls/$existing_pr_number" \
+              --method PATCH \
+              --input /tmp/leo-docs-prism-pr.json \
+              --silent
+          else
+            gh api "repos/$TARGET_REPO/pulls" \
+              --method POST \
+              --input /tmp/leo-docs-prism-pr.json \
+              --silent
+          fi

@@ -1,0 +1,6 @@
+{
+  "targetRepo": "ProvableHQ/leo-docs",
+  "targetPath": "src/theme/prism-leo.js",
+  "syncBranch": "automation/sync-leo-prism",
+  "pullRequestTitlePrefix": "chore: sync Leo Prism syntax from "
+}
