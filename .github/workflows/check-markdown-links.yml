@@ -1,0 +1,34 @@
+# Checks Markdown files for broken local and remote links.
+# - Runs on pull requests and pushes to `master`.
+# - Validates repository docs such as README files before merge.
+# - Uses lychee, a maintained link checker for Markdown, HTML, and text files.
+
+name: Check Markdown Links
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Check Markdown links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --verbose
+            --no-progress
+            --accept 200,206,429
+            "./**/*.md"
+          token: ${{ github.token }}

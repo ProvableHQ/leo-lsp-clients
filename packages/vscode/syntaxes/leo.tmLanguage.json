@@ -1,0 +1,253 @@
+{
+  "name": "Leo",
+  "scopeName": "source.leo",
+  "fileTypes": [
+    "leo"
+  ],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#annotations"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#addresses"
+    },
+    {
+      "include": "#programDeclarations"
+    },
+    {
+      "include": "#typeDeclarations"
+    },
+    {
+      "include": "#functionDeclarations"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#types"
+    },
+    {
+      "include": "#constants"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#punctuation"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.leo",
+          "match": "\\/\\/[^\\n]*"
+        },
+        {
+          "name": "comment.block.leo",
+          "match": "/\\*[^*]*\\*+([^/*][^*]*\\*+)*/"
+        }
+      ]
+    },
+    "annotations": {
+      "patterns": [
+        {
+          "name": "entity.other.attribute-name.leo",
+          "match": "@(?:[a-zA-Z][a-zA-Z0-9_]*|_[a-zA-Z][a-zA-Z0-9_]*)"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.leo",
+          "match": "\"[^\"]*\""
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.leo",
+          "match": "(?:[0-9][0-9A-Za-z_]*(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0b[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0o[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0x[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|[0-9][0-9_]*scalar|[0-9][0-9_]*field|[0-9][0-9_]*group)"
+        }
+      ]
+    },
+    "addresses": {
+      "patterns": [
+        {
+          "name": "string.special.address.leo",
+          "match": "aleo1[a-z0-9]+"
+        }
+      ]
+    },
+    "programDeclarations": {
+      "patterns": [
+        {
+          "name": "meta.declaration.program.leo",
+          "match": "\\b(program)\\s+([a-zA-Z][a-zA-Z0-9_]*|_[a-zA-Z][a-zA-Z0-9_]*)\\.(aleo)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.namespace.leo"
+            },
+            "2": {
+              "name": "entity.name.namespace.leo"
+            },
+            "3": {
+              "name": "keyword.other.leo"
+            }
+          }
+        },
+        {
+          "name": "meta.declaration.program.leo",
+          "match": "\\b(import)\\s+([a-zA-Z][a-zA-Z0-9_]*|_[a-zA-Z][a-zA-Z0-9_]*)\\.(aleo)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.namespace.leo"
+            },
+            "2": {
+              "name": "entity.name.namespace.leo"
+            },
+            "3": {
+              "name": "keyword.other.leo"
+            }
+          }
+        }
+      ]
+    },
+    "typeDeclarations": {
+      "patterns": [
+        {
+          "name": "meta.declaration.type.leo",
+          "match": "\\b(struct)\\s+([a-zA-Z][a-zA-Z0-9_]*|_[a-zA-Z][a-zA-Z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.type.leo"
+            },
+            "2": {
+              "name": "entity.name.type.leo"
+            }
+          }
+        },
+        {
+          "name": "meta.declaration.type.leo",
+          "match": "\\b(record)\\s+([a-zA-Z][a-zA-Z0-9_]*|_[a-zA-Z][a-zA-Z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.type.leo"
+            },
+            "2": {
+              "name": "entity.name.type.leo"
+            }
+          }
+        },
+        {
+          "name": "meta.declaration.type.leo",
+          "match": "\\b(interface)\\s+([a-zA-Z][a-zA-Z0-9_]*|_[a-zA-Z][a-zA-Z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.type.leo"
+            },
+            "2": {
+              "name": "entity.name.type.leo"
+            }
+          }
+        }
+      ]
+    },
+    "functionDeclarations": {
+      "patterns": [
+        {
+          "name": "meta.declaration.function.leo",
+          "match": "\\b(fn)\\s+([a-zA-Z][a-zA-Z0-9_]*|_[a-zA-Z][a-zA-Z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.function.leo"
+            },
+            "2": {
+              "name": "entity.name.function.leo"
+            }
+          }
+        },
+        {
+          "name": "meta.declaration.function.leo",
+          "match": "\\b(final\\s+fn)\\s+([a-zA-Z][a-zA-Z0-9_]*|_[a-zA-Z][a-zA-Z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.declaration.function.leo"
+            },
+            "2": {
+              "name": "entity.name.function.leo"
+            }
+          }
+        },
+        {
+          "name": "meta.declaration.function.constructor.leo",
+          "match": "\\bconstructor\\b",
+          "captures": {
+            "0": {
+              "name": "keyword.declaration.function.leo"
+            }
+          }
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.leo",
+          "match": "\\b(?:constructor|assert_neq|assert_eq|interface|constant|mapping|network|private|program|storage|assert|import|public|record|return|struct|block|const|final|Final|aleo|else|self|for|let|as|fn|Fn|if|in)\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "storage.type.primitive.leo",
+          "match": "\\b(?:signature|address|scalar|string|field|group|bool|i128|u128|i16|i32|i64|u16|u32|u64|i8|u8)\\b"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.leo",
+          "match": "\\b(?:false|none|true)\\b"
+        },
+        {
+          "name": "constant.language.special-path.leo",
+          "match": "(?:signature::[a-zA-Z][a-zA-Z0-9_]*|Future::[a-zA-Z][a-zA-Z0-9_]*|group::[a-zA-Z][a-zA-Z0-9_]*)"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.leo",
+          "match": "(?:\\.\\.=|\\*\\*=|&&=|<<=|>>=|\\|\\|=|\\-=|!=|\\.\\.|\\*\\*|\\*=|/=|&&|&=|%=|\\^=|\\+=|<<|<=|==|>=|>>|\\|=|\\|\\||as|\\-|!|\\?|\\*|/|&|%|\\^|\\+|<|=|>|\\|)"
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.bracket.leo",
+          "match": "(?:\\(|\\)|\\[|\\]|\\{|\\})"
+        },
+        {
+          "name": "punctuation.delimiter.leo",
+          "match": "(?:\\->|::|=>|,|;|:|\\.|@)"
+        }
+      ]
+    }
+  }
+}

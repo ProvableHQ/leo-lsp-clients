@@ -1,0 +1,6 @@
+{
+  "sourceRepo": "ProvableHQ/leo",
+  "stableTagPattern": "^v\\d+\\.\\d+\\.\\d+$",
+  "syncBranch": "automation/sync-leo-release",
+  "pullRequestTitlePrefix": "chore: sync Leo syntax from "
+}

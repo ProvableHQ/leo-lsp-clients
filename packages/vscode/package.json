@@ -1,0 +1,97 @@
+{
+  "name": "leo-extension",
+  "displayName": "Leo",
+  "version": "0.49.0",
+  "publisher": "aleohq",
+  "description": "The official VS Code extension for Leo",
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "engines": {
+    "vscode": "^1.79.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "aleo",
+    "leo"
+  ],
+  "galleryBanner": {
+    "color": "#931CFF",
+    "theme": "dark"
+  },
+  "preview": false,
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:leo",
+    "onCommand:leo-extension.about"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "leo",
+        "aliases": [
+          "Leo",
+          "leo"
+        ],
+        "extensions": [
+          ".leo"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "leo",
+        "scopeName": "source.leo",
+        "path": "./syntaxes/leo.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "leo-extension.about",
+        "title": "Leo About"
+      }
+    ]
+  },
+  "badges": [
+    {
+      "url": "https://img.shields.io/twitter/follow/AleoHQ?style=social",
+      "href": "https://twitter.com/AleoHQ",
+      "description": "Twitter"
+    },
+    {
+      "url": "https://img.shields.io/discord/700454073459015690?logo=discord",
+      "href": "https://discord.com/invite/aleo",
+      "description": "Discord"
+    }
+  ],
+  "markdown": "github",
+  "qna": "marketplace",
+  "scripts": {
+    "build": "tsc -p .",
+    "typecheck": "tsc -p . --noEmit",
+    "watch": "tsc -watch -p .",
+    "package": "vsce package --no-dependencies -o ../../dist/leo-extension.vsix",
+    "publish:extension": "vsce publish --no-dependencies -p $VSCODE_PUBLISHER_TOKEN"
+  },
+  "extensionKind": [
+    "ui",
+    "workspace"
+  ],
+  "icon": "icons/leo.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ProvableHQ/leo-lsp-clients.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ProvableHQ/leo-lsp-clients/issues"
+  },
+  "homepage": "https://leo-lang.org/",
+  "author": "aleohq",
+  "devDependencies": {
+    "@types/node": "^20.3.1",
+    "@types/vscode": "^1.79.0",
+    "@vscode/vsce": "^2.19.0",
+    "typescript": "^5.1.3"
+  }
+}

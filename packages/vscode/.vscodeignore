@@ -1,0 +1,7 @@
+src/**
+tsconfig.json
+Developer.md
+generated-from-leo.json
+vendor/**
+**/*.map
+**/*.tsbuildinfo
