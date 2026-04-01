@@ -102,3 +102,17 @@ Create a `.vsix`:
 ```bash
 npm run package:vscode
 ```
+
+## Manual Marketplace Publish
+
+Once `VSCODE_PUBLISHER_TOKEN` is configured for this repository, maintainers can
+publish from the Actions tab with `.github/workflows/publish-vscode-extension.yml`.
+
+The manual workflow:
+
+- checks out the default branch
+- requires an exact version input such as `0.49.1`
+- builds the extension and uploads `dist/leo-extension.vsix`
+- publishes `aleohq.leo-extension` to the VS Code Marketplace
+- leaves the repository version untouched, so a follow-up commit can sync repo
+  metadata with the published version when needed

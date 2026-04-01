@@ -1,0 +1,109 @@
+# Publishes the existing Leo VS Code Marketplace extension on demand.
+# - Runs manually from the Actions tab after a maintainer provides the exact
+#   version to ship.
+# - Builds the extension, creates a VSIX artifact, and publishes
+#   `aleohq.leo-extension` with `vsce`.
+# - Requires `VSCODE_PUBLISHER_TOKEN` in repository or org secrets.
+
+name: Publish VS Code Extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Exact extension version to publish (for example 0.49.1)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-vscode-extension
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Check publish token availability
+        env:
+          VSCODE_PUBLISHER_TOKEN: ${{ secrets.VSCODE_PUBLISHER_TOKEN }}
+        run: |
+          if [ -z "$VSCODE_PUBLISHER_TOKEN" ]; then
+            echo "VSCODE_PUBLISHER_TOKEN is not configured for this repository." >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set extension version for this publish
+        id: version
+        env:
+          REQUESTED_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          set -euo pipefail
+
+          node <<'NODE'
+          const fs = require("node:fs");
+          const path = require("node:path");
+
+          const requestedVersion = (process.env.REQUESTED_VERSION || "").trim();
+          if (!/^\d+\.\d+\.\d+$/.test(requestedVersion)) {
+            throw new Error(`Expected a SemVer version like 0.49.1, received '${requestedVersion}'.`);
+          }
+
+          const packageJsonPath = path.join(process.cwd(), "packages/vscode/package.json");
+          const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+          packageJson.version = requestedVersion;
+
+          fs.writeFileSync(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `version=${requestedVersion}\n`);
+          NODE
+
+      - name: Build extension
+        run: npm run build --workspace leo-extension
+
+      - name: Create VSIX package
+        run: |
+          mkdir -p dist
+          npm run package:vscode
+
+      - name: Publish extension to Visual Studio Marketplace
+        env:
+          VSCODE_PUBLISHER_TOKEN: ${{ secrets.VSCODE_PUBLISHER_TOKEN }}
+        run: npm run publish:extension --workspace leo-extension
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: leo-extension-v${{ steps.version.outputs.version }}
+          path: dist/leo-extension.vsix
+          if-no-files-found: error
+
+      - name: Write workflow summary
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          {
+            echo "## VS Code publish complete"
+            echo
+            echo "- Extension: \`aleohq.leo-extension\`"
+            echo "- Version: \`$VERSION\`"
+            echo "- Source branch: \`${{ github.event.repository.default_branch }}\`"
+            echo "- VSIX artifact: \`dist/leo-extension.vsix\`"
+          } >>"$GITHUB_STEP_SUMMARY"
