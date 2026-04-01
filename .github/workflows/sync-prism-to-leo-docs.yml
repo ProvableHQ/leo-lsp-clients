@@ -2,7 +2,8 @@
 # - Runs after pushes that update the shared Prism artifact.
 # - Copies `packages/shared/syntaxes/prism-leo.js` into `leo-docs`.
 # - Opens or updates a reviewable PR in the docs repo.
-# - Requires `LEO_DOCS_WRITE_TOKEN` with permission to push branches and open PRs.
+# - Requires `LEO_DOCS_WRITE_TOKEN` (`contents: write`, `pull-requests: write`)
+#   for `ProvableHQ/leo-docs`.
 
 name: Sync Prism To Leo Docs
 

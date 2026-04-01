@@ -82,8 +82,12 @@ A companion workflow, `.github/workflows/sync-prism-to-leo-docs.yml`, syncs the
 generated Prism component into `leo-docs` after the shared artifact changes on
 this repository's default branch.
 
-If GitHub Actions needs explicit access to the Leo repo, set
-`LEO_REPO_READ_TOKEN` in this repository's secrets.
+These automations expect the following repository or org-level secrets:
+
+- `LEO_REPO_READ_TOKEN`: `contents: read` on `ProvableHQ/leo` for
+  `.github/workflows/watch-leo-tags.yml`
+- `LEO_DOCS_WRITE_TOKEN`: `contents: write` and `pull-requests: write` on
+  `ProvableHQ/leo-docs` for `.github/workflows/sync-prism-to-leo-docs.yml`
 
 ## Packaging
 

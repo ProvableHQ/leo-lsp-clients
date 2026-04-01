@@ -4,8 +4,8 @@
 #   from the selected Leo ref.
 # - Pushes changes to the fixed automation branch `automation/sync-leo-release`.
 # - Opens or updates a reviewable PR; it does not publish the extension.
-# - Optionally uses `LEO_REPO_READ_TOKEN` when GitHub Actions needs explicit
-#   read access to `ProvableHQ/leo`.
+# - Requires `LEO_REPO_READ_TOKEN` (`contents: read`) for cross-repo access to
+#   `ProvableHQ/leo`.
 
 name: Watch Leo Tags
 
@@ -42,11 +42,24 @@ jobs:
         with:
           node-version: 20
 
+      - name: Check Leo source token availability
+        id: auth
+        env:
+          LEO_REPO_READ_TOKEN: ${{ secrets.LEO_REPO_READ_TOKEN }}
+        run: |
+          if [ -z "$LEO_REPO_READ_TOKEN" ]; then
+            echo "enabled=false" >>"$GITHUB_OUTPUT"
+            echo "LEO_REPO_READ_TOKEN is not configured. Skipping Leo sync."
+            exit 0
+          fi
+
+          echo "enabled=true" >>"$GITHUB_OUTPUT"
+
       - name: Resolve Leo sync target
         id: target
+        if: steps.auth.outputs.enabled == 'true'
         env:
           GH_TOKEN: ${{ secrets.LEO_REPO_READ_TOKEN }}
-          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
@@ -64,11 +77,11 @@ jobs:
           "${args[@]}"
 
       - name: Stop when no sync is needed
-        if: steps.target.outputs.should_sync != 'true'
+        if: steps.auth.outputs.enabled == 'true' && steps.target.outputs.should_sync != 'true'
         run: echo "No new Leo release tag needs syncing."
 
       - name: Check whether the automation branch already targets this ref
-        if: steps.target.outputs.should_sync == 'true'
+        if: steps.auth.outputs.enabled == 'true' && steps.target.outputs.should_sync == 'true'
         id: branch_state
         env:
           SYNC_BRANCH: ${{ steps.target.outputs.sync_branch }}
@@ -92,26 +105,26 @@ jobs:
           echo "already_prepared=false" >>"$GITHUB_OUTPUT"
 
       - name: Stop when the automation branch is already up to date
-        if: steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared == 'true'
+        if: steps.auth.outputs.enabled == 'true' && steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared == 'true'
         run: echo "An automation branch already exists for this Leo release ref."
 
       - name: Checkout Leo repo
-        if: steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true'
+        if: steps.auth.outputs.enabled == 'true' && steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true'
         uses: actions/checkout@v5
         with:
           repository: ProvableHQ/leo
           path: leo
           fetch-depth: 0
-          token: ${{ secrets.LEO_REPO_READ_TOKEN || github.token }}
+          token: ${{ secrets.LEO_REPO_READ_TOKEN }}
 
       - name: Configure git author
-        if: steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true'
+        if: steps.auth.outputs.enabled == 'true' && steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Sync syntax artifacts from the selected Leo ref
-        if: steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true'
+        if: steps.auth.outputs.enabled == 'true' && steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true'
         id: sync
         env:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
@@ -142,11 +155,11 @@ jobs:
           echo "has_changes=true" >>"$GITHUB_OUTPUT"
 
       - name: Stop when the selected Leo ref produces no repo changes
-        if: steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true' && steps.sync.outputs.has_changes != 'true'
+        if: steps.auth.outputs.enabled == 'true' && steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true' && steps.sync.outputs.has_changes != 'true'
         run: echo "Sync completed but produced no changes to commit."
 
       - name: Create or update the sync pull request
-        if: steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true' && steps.sync.outputs.has_changes == 'true'
+        if: steps.auth.outputs.enabled == 'true' && steps.target.outputs.should_sync == 'true' && steps.branch_state.outputs.already_prepared != 'true' && steps.sync.outputs.has_changes == 'true'
         env:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           GH_TOKEN: ${{ github.token }}
