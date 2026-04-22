@@ -30,7 +30,10 @@ Prism.languages.leo = {
     "pattern": new RegExp("aleo1[a-z0-9]+"),
     "alias": "string"
   },
-  "number": new RegExp("(?:[0-9][0-9A-Za-z_]*(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0b[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0o[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0x[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|[0-9][0-9_]*scalar|[0-9][0-9_]*field|[0-9][0-9_]*group)"),
+  "number": {
+    "pattern": new RegExp("(^|[^A-Za-z0-9_])(?:(?:[0-9][0-9A-Za-z_]*(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0b[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0o[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0x[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|[0-9][0-9_]*scalar|[0-9][0-9_]*field|[0-9][0-9_]*group))(?![A-Za-z0-9_])"),
+    "lookbehind": true
+  },
   "program-id": {
     "pattern": new RegExp("\\b(?:[a-zA-Z][a-zA-Z0-9_]*|_[a-zA-Z][a-zA-Z0-9_]*)\\.aleo\\b"),
     "alias": "file",
