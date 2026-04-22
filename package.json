@@ -15,6 +15,7 @@
     "generate:syntaxes": "node ./scripts/generate-syntax-artifacts.mjs --leo-repo ../leo --leo-ref HEAD",
     "generate:textmate": "node ./scripts/generate-textmate-grammar.mjs --leo-repo ../leo --leo-ref HEAD",
     "package:vscode": "npm run package --workspace leo-extension",
-    "sync:tree-sitter": "./scripts/sync-tree-sitter-from-leo.sh ../leo FETCH_HEAD"
+    "sync:tree-sitter": "./scripts/sync-tree-sitter-from-leo.sh ../leo FETCH_HEAD",
+    "test:prism": "node --test tests/prism-grammar.test.mjs"
   }
 }

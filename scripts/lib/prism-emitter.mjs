@@ -56,7 +56,10 @@ function buildPrismGrammar(syntaxData) {
   };
 
   if (syntaxData.numberPatterns.length > 0) {
-    grammar.number = raw(regexExpression(rawAlternation(syntaxData.numberPatterns)));
+    grammar.number = {
+      pattern: raw(regexExpression(boundedTokenPattern(rawAlternation(syntaxData.numberPatterns)))),
+      lookbehind: true
+    };
   }
 
   grammar["program-id"] = {
@@ -195,6 +198,10 @@ function buildPunctuationPattern(syntaxData) {
   }
 
   return plainAlternation(punctuationTokens);
+}
+
+function boundedTokenPattern(pattern) {
+  return `(^|[^A-Za-z0-9_])(?:${pattern})(?![A-Za-z0-9_])`;
 }
 
 function raw(value) {
