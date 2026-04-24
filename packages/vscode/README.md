@@ -49,6 +49,7 @@ Today it supports:
 - syntax highlighting generated from Leo's tree-sitter source in the main `ProvableHQ/leo` repo
 - comment, bracket, and editor language configuration for Leo files
 - approximate go-to-definition for top-level symbols in the current workspace
+- optional `leo-lsp` startup for semantic-token and future language-server features when the binary is installed locally
 
 ### 🛠️ Migration Status
 
