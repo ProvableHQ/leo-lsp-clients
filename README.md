@@ -29,6 +29,8 @@ The current implementation work is centered on the VS Code extension:
   `packages/vscode/README.md`
 - VS Code developer and release workflow notes:
   `packages/vscode/Developer.md`
+- Repository contribution notes:
+  `CONTRIBUTING.md`
 - Shared generated website syntax assets:
   `packages/shared/README.md`
 - VS Code tag-watching sync automation:

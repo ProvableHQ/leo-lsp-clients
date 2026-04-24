@@ -8,9 +8,15 @@ This package contains the Leo 4.0 VS Code extension scaffold for the existing
 - Leo language registration for `.leo` files
 - Leo 4.0-aware TextMate fallback highlighting
 - Approximate workspace-wide go-to-definition for top-level symbols
+- Optional `leo-lsp` startup when a local server binary is available
 - TextMate and Prism syntax artifacts generated directly from the Leo monorepo
   tree-sitter source
 - No vendored tree-sitter snapshot checked into this repo
+
+## Contributing
+
+See the repository-level `CONTRIBUTING.md` for local extension and Leo LSP
+validation notes.
 
 ## Syncing Tree-Sitter Source
 

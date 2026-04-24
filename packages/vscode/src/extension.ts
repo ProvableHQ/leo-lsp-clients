@@ -1,9 +1,11 @@
 import * as vscode from "vscode";
 
 import { createLeoDefinitionProvider } from "./definitionProvider";
+import { activateLeoLanguageServer, deactivateLeoLanguageServer } from "./languageServer";
 
 export function activate(context: vscode.ExtensionContext): void {
-  const selector: vscode.DocumentSelector = [{ language: "leo", scheme: "file" }];
+  const selector = [{ language: "leo", scheme: "file" }];
+  activateLeoLanguageServer(context, selector);
 
   context.subscriptions.push(
     vscode.languages.registerDefinitionProvider(selector, createLeoDefinitionProvider())
@@ -12,11 +14,12 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.commands.registerCommand("leo-extension.about", async () => {
       await vscode.window.showInformationMessage(
-        "Leo 4.0 support is scaffolded with client-side highlighting and approximate go-to-definition. Tree-sitter assets sync from the Leo monorepo."
+        "Leo 4.0 support includes tree-sitter-derived syntax tooling, approximate go-to-definition, and optional leo-lsp startup when the binary is available."
       );
     })
   );
 }
 
-export function deactivate(): void {}
-
+export function deactivate(): Thenable<void> | undefined {
+  return deactivateLeoLanguageServer();
+}
