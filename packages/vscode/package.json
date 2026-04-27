@@ -6,7 +6,7 @@
   "description": "The official VS Code extension for Leo",
   "license": "SEE LICENSE IN LICENSE.txt",
   "engines": {
-    "vscode": "^1.79.0"
+    "vscode": "^1.82.0"
   },
   "categories": [
     "Programming Languages"
@@ -51,7 +51,25 @@
         "command": "leo-extension.about",
         "title": "Leo About"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Leo",
+      "properties": {
+        "leo.languageServer.path": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Absolute or workspace-relative path to the `leo-lsp` executable. When unset, the extension searches common local development locations and `PATH`."
+        },
+        "leo.languageServer.args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "markdownDescription": "Additional arguments passed to the Leo language server executable."
+        }
+      }
+    }
   },
   "badges": [
     {
@@ -68,9 +86,11 @@
   "markdown": "github",
   "qna": "marketplace",
   "scripts": {
-    "build": "tsc -p .",
+    "build": "npm run typecheck && npm run clean && npm run bundle",
+    "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=out/extension.js --sourcemap",
+    "clean": "node -e \"require('node:fs').rmSync('out', { recursive: true, force: true })\"",
     "typecheck": "tsc -p . --noEmit",
-    "watch": "tsc -watch -p .",
+    "watch": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=out/extension.js --sourcemap --watch",
     "package": "vsce package --no-dependencies -o ../../dist/leo-extension.vsix",
     "publish:extension": "vsce publish --no-dependencies -p $VSCODE_PUBLISHER_TOKEN"
   },
@@ -88,10 +108,14 @@
   },
   "homepage": "https://leo-lang.org/",
   "author": "aleohq",
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
   "devDependencies": {
     "@types/node": "^20.3.1",
-    "@types/vscode": "^1.79.0",
+    "@types/vscode": "^1.82.0",
     "@vscode/vsce": "^2.19.0",
+    "esbuild": "^0.25.12",
     "typescript": "^5.1.3"
   }
 }
