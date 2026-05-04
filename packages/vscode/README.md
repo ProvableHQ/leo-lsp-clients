@@ -48,8 +48,8 @@ Today it supports:
 - `.leo` file association
 - syntax highlighting generated from Leo's tree-sitter source in the main `ProvableHQ/leo` repo
 - comment, bracket, and editor language configuration for Leo files
-- approximate go-to-definition for top-level symbols in the current workspace
-- optional `leo-lsp` startup for semantic-token and future language-server features when the binary is installed locally
+- optional `leo-lsp` startup for semantic tokens and go-to-definition when the binary is installed locally
+- approximate client-side go-to-definition fallback when `leo-lsp` is unavailable
 
 ### 🛠️ Migration Status
 
