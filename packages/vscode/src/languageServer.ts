@@ -12,20 +12,20 @@ const LANGUAGE_SERVER_ARGS_SETTING = "languageServer.args";
 let client: LanguageClient | undefined;
 
 /**
- * Start `leo-lsp` when a local executable is available and otherwise keep the
- * extension in its syntax-only fallback mode.
+ * Start `leo-lsp` when a local executable is available. Returns whether a
+ * server launch was attempted so callers can register client-side fallbacks.
  */
 export function activateLeoLanguageServer(
   context: vscode.ExtensionContext,
   documentSelector: LanguageClientOptions["documentSelector"]
-): void {
+): boolean {
   const outputChannel = vscode.window.createOutputChannel(OUTPUT_CHANNEL_NAME);
   context.subscriptions.push(outputChannel);
 
   const executable = resolveServerExecutable(outputChannel);
   if (!executable) {
     outputChannel.appendLine("leo-lsp was not found; continuing with tree-sitter-derived fallback support.");
-    return;
+    return false;
   }
 
   const clientOptions: LanguageClientOptions = {
@@ -57,6 +57,8 @@ export function activateLeoLanguageServer(
       void languageClient.stop();
     }
   });
+
+  return true;
 }
 
 /** Stop the optional language server when the extension deactivates. */
