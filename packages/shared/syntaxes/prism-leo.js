@@ -1,7 +1,7 @@
 // Generated from Leo tree-sitter syntax data. Do not edit by hand.
 // Source repo: ProvableHQ/leo
-// Source ref: v4.0.1
-// Resolved commit: abe1e1e8e5dd48ae5a849a94c802175419bebb30
+// Source ref: v4.0.2
+// Resolved commit: 13448848d9509c32b4541fda6b498b0fee703eab
 
 Prism.languages.leo = {
   "comment": [
@@ -76,7 +76,7 @@ Prism.languages.leo = {
     }
   ],
   "keyword": new RegExp("\\b(?:assert_neq|assert_eq|interface|mapping|network|program|storage|assert|import|record|return|struct|block|const|final|Final|aleo|else|self|for|let|as|fn|Fn|if|in)\\b"),
-  "type-keyword": new RegExp("\\b(?:signature|address|scalar|string|field|group|bool|i128|u128|i16|i32|i64|u16|u32|u64|i8|u8)\\b"),
+  "type-keyword": new RegExp("\\b(?:identifier|signature|address|scalar|string|field|group|bool|i128|u128|i16|i32|i64|u16|u32|u64|i8|u8)\\b"),
   "bool-keyword": new RegExp("\\b(?:false|true)\\b"),
   "builtin-constant": [
     {

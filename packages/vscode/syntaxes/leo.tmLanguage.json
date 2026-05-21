@@ -213,7 +213,7 @@
       "patterns": [
         {
           "name": "storage.type.primitive.leo",
-          "match": "\\b(?:signature|address|scalar|string|field|group|bool|i128|u128|i16|i32|i64|u16|u32|u64|i8|u8)\\b"
+          "match": "\\b(?:identifier|signature|address|scalar|string|field|group|bool|i128|u128|i16|i32|i64|u16|u32|u64|i8|u8)\\b"
         }
       ]
     },
