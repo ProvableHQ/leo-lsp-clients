@@ -1,0 +1,60 @@
+name: Build leo-lsp
+description: >
+  Check out ProvableHQ/leo at a chosen ref, build the leo-lsp binary in
+  release mode, and add it to $GITHUB_PATH so subsequent steps can invoke
+  `leo-lsp` directly. Used by every client validation workflow.
+
+inputs:
+  ref:
+    description: Git ref of ProvableHQ/leo to check out and build.
+    required: false
+    default: master
+  toolchain:
+    description: Rust toolchain to install for the build.
+    required: false
+    default: stable
+
+runs:
+  using: composite
+  steps:
+    - name: Check out ProvableHQ/leo
+      uses: actions/checkout@v4
+      with:
+        repository: ProvableHQ/leo
+        ref: ${{ inputs.ref }}
+        path: leo-checkout
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: ${{ inputs.toolchain }}
+
+    - name: Cache cargo registry + target
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          leo-checkout/target
+        key: leo-lsp-${{ runner.os }}-${{ inputs.ref }}-${{ hashFiles('leo-checkout/Cargo.lock') }}
+        restore-keys: |
+          leo-lsp-${{ runner.os }}-${{ inputs.ref }}-
+          leo-lsp-${{ runner.os }}-
+
+    - name: cargo build --release -p leo-lsp
+      shell: bash
+      working-directory: leo-checkout
+      run: cargo build --release -p leo-lsp
+
+    - name: Expose leo-lsp on PATH
+      shell: bash
+      working-directory: leo-checkout
+      run: |
+        bin_dir="$PWD/target/release"
+        if [ ! -x "$bin_dir/leo-lsp" ]; then
+          echo "leo-lsp binary not found at $bin_dir/leo-lsp" >&2
+          ls -la "$bin_dir" >&2
+          exit 1
+        fi
+        echo "$bin_dir" >> "$GITHUB_PATH"
+        echo "leo-lsp built at $bin_dir/leo-lsp"

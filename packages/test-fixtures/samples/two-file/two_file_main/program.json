@@ -1,0 +1,14 @@
+{
+  "program": "two_file_main.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "4.0.0",
+  "dependencies": [
+    {
+      "name": "two_file_add.aleo",
+      "location": "local",
+      "path": "../two_file_add"
+    }
+  ]
+}

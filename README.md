@@ -10,9 +10,19 @@ Vim, Cursor, Sublime Text, MCP-facing tooling, and shared client infrastructure.
 
 - `packages/vscode`: The Leo VS Code extension that will continue publishing to
   the existing `aleohq.leo-extension` marketplace listing.
-- `packages/shared`: Shared code and assets for future Leo client packages.
+- `packages/shared`: Shared substrate consumed by every Leo editor client and
+  by CI workflows. See `packages/shared/README.md` for the per-subdirectory
+  index. Contains the canonical TextMate grammar (regenerated from
+  upstream `ProvableHQ/leo`'s tree-sitter source), the `@leo-lsp/discover`
+  and `@leo-lsp/smoke` Node CLIs, the canonical configuration schema, and
+  the identity canon.
 - `packages/test-fixtures`: Small Leo programs for integration testing and
-  smoke tests.
+  smoke tests. The `README.md` in this package is the **normative coordinate
+  table** for every assertion any client makes against a Leo fixture.
+- `.github/actions/build-leo-lsp`, `.github/actions/build-leo`: Composite
+  actions that check out `ProvableHQ/leo` at a chosen ref, build the
+  respective binary, and add it to `$GITHUB_PATH`. Used by every client
+  validation workflow.
 
 ## Current Focus
 
@@ -48,7 +58,7 @@ For local VS Code extension development:
 npm install
 git -C ../leo fetch origin master
 npm run sync:tree-sitter
-npm run build
+npm run build:vscode
 npm run package:vscode
 ```
 

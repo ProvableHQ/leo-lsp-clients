@@ -24,7 +24,7 @@ const source = loadLeoTreeSitterSource({
 const syntaxData = extractLeoSyntaxData(source);
 const outputPath = resolveArg(
   readOption("--output"),
-  path.join(repoRoot, "packages/vscode/syntaxes/leo.tmLanguage.json")
+  path.join(repoRoot, "packages/shared/syntaxes/leo.tmLanguage.json")
 );
 const metadataPath = resolveArg(
   readOption("--metadata"),
