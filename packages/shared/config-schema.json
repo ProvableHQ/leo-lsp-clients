@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ProvableHQ/leo-lsp-clients/blob/master/packages/shared/config-schema.json",
+  "title": "Leo client configuration",
+  "description": "Canonical schema for Leo editor client settings. Each client maps these onto its native config surface; see config-schema.md for the per-client table.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "leo.languageServer.path": {
+      "type": "string",
+      "default": "",
+      "description": "Absolute or workspace-relative path to the leo-lsp executable. A leading ~/ is expanded to the user's home directory. When empty, the client falls back to the canonical 5-tier discovery order."
+    },
+    "leo.languageServer.args": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Additional arguments appended verbatim to the leo-lsp command line."
+    }
+  }
+}

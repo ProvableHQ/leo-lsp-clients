@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-# Regenerates the Leo syntax artifacts from a specific Leo git ref.
+# Regenerates the downstream Leo grammar artifacts (TextMate JSON, Prism
+# component, provenance metadata) from a specific Leo git ref.
 # - Verifies the chosen ref exists in the Leo repo and contains tree-sitter data.
 # - Runs `scripts/generate-syntax-artifacts.mjs` against that ref.
 # - Updates the generated TextMate grammar, Prism component, and source metadata file.
@@ -23,8 +24,8 @@ fi
 node ./scripts/generate-syntax-artifacts.mjs \
   --leo-repo "$LEO_REPO" \
   --leo-ref "$LEO_REF" \
-  --textmate-output "packages/vscode/syntaxes/leo.tmLanguage.json" \
+  --textmate-output "packages/shared/syntaxes/leo.tmLanguage.json" \
   --prism-output "packages/shared/syntaxes/prism-leo.js" \
   --metadata "packages/vscode/generated-from-leo.json"
 
-echo "Generated Leo syntax artifacts from $LEO_REPO at $LEO_REF"
+echo "Generated Leo grammar artifacts from $LEO_REPO at $LEO_REF"

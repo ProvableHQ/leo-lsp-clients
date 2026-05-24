@@ -1,0 +1,16 @@
+{
+  "name": "@leo-lsp/smoke",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Tiny LSP-level smoke driver: spawn a leo-lsp, send initialize + didOpen + definition, assert on the result.",
+  "bin": {
+    "leo-lsp-smoke": "src/index.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "vscode-jsonrpc": "^8.2.0"
+  }
+}

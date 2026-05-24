@@ -86,9 +86,10 @@
   "markdown": "github",
   "qna": "marketplace",
   "scripts": {
-    "build": "npm run typecheck && npm run clean && npm run bundle",
+    "build": "npm run sync:vscode-grammar && npm run typecheck && npm run clean && npm run bundle",
     "bundle": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=out/extension.js --sourcemap",
     "clean": "node -e \"require('node:fs').rmSync('out', { recursive: true, force: true })\"",
+    "sync:vscode-grammar": "node -e \"require('node:fs').mkdirSync('syntaxes', { recursive: true }); require('node:fs').copyFileSync('../shared/syntaxes/leo.tmLanguage.json', 'syntaxes/leo.tmLanguage.json')\"",
     "typecheck": "tsc -p . --noEmit",
     "watch": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=out/extension.js --sourcemap --watch",
     "package": "vsce package --no-dependencies -o ../../dist/leo-extension.vsix",

@@ -1,0 +1,13 @@
+{
+  "name": "@leo-lsp/discover",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Resolve an absolute path to leo-lsp using the canonical 5-tier discovery order.",
+  "bin": {
+    "leo-lsp-discover": "src/index.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

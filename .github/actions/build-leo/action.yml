@@ -1,0 +1,60 @@
+name: Build leo
+description: >
+  Check out ProvableHQ/leo at a chosen ref, build the `leo` compiler binary
+  in release mode, and add it to $GITHUB_PATH. Used by PR 8 (Compiler
+  Explorer) which invokes `leo` directly, not `leo-lsp`.
+
+inputs:
+  ref:
+    description: Git ref of ProvableHQ/leo to check out and build.
+    required: false
+    default: master
+  toolchain:
+    description: Rust toolchain to install for the build.
+    required: false
+    default: stable
+
+runs:
+  using: composite
+  steps:
+    - name: Check out ProvableHQ/leo
+      uses: actions/checkout@v4
+      with:
+        repository: ProvableHQ/leo
+        ref: ${{ inputs.ref }}
+        path: leo-checkout
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: ${{ inputs.toolchain }}
+
+    - name: Cache cargo registry + target
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          leo-checkout/target
+        key: leo-${{ runner.os }}-${{ inputs.ref }}-${{ hashFiles('leo-checkout/Cargo.lock') }}
+        restore-keys: |
+          leo-${{ runner.os }}-${{ inputs.ref }}-
+          leo-${{ runner.os }}-
+
+    - name: cargo build --release -p leo
+      shell: bash
+      working-directory: leo-checkout
+      run: cargo build --release -p leo
+
+    - name: Expose leo on PATH
+      shell: bash
+      working-directory: leo-checkout
+      run: |
+        bin_dir="$PWD/target/release"
+        if [ ! -x "$bin_dir/leo" ]; then
+          echo "leo binary not found at $bin_dir/leo" >&2
+          ls -la "$bin_dir" >&2
+          exit 1
+        fi
+        echo "$bin_dir" >> "$GITHUB_PATH"
+        echo "leo built at $bin_dir/leo"
