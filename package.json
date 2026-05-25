@@ -16,9 +16,12 @@
     "generate:textmate": "node ./scripts/generate-textmate-grammar.mjs --leo-repo ../leo --leo-ref HEAD",
     "package:vscode": "npm run package --workspace leo-extension",
     "publish:vscode": "npm run publish:extension --workspace leo-extension",
+    "publish:openvsx": "npm run publish:openvsx --workspace leo-extension",
     "sync:tree-sitter": "./scripts/sync-grammar-artifacts.sh ../leo HEAD",
     "validate": "npm run validate:vscode",
     "validate:vscode": "npm run check && npm run test:prism",
+    "validate:cursor": "npm run validate:cursor --workspace leo-extension",
+    "validate:cursor:teardown": "node ./scripts/cursor/teardown.mjs",
     "test:prism": "node --test tests/prism-grammar.test.mjs"
   }
 }
