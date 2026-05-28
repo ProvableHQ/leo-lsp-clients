@@ -1,0 +1,105 @@
+# Publishes the existing Leo extension to Open VSX (the registry Cursor uses)
+# on demand.
+# - Runs manually from the Actions tab after a maintainer provides the exact
+#   version to ship.
+# - Builds the extension, creates a VSIX artifact, and publishes
+#   `aleohq.leo-extension` to https://open-vsx.org via `HaaLeo/publish-vscode-extension`.
+# - Requires `OPEN_VSX_TOKEN` in repository or org secrets. The `aleohq`
+#   namespace must already exist on Open VSX:
+#     npx ovsx create-namespace aleohq -p "$OVSX_PAT"
+# - Does NOT mutate `packages/vscode/package.json`. Version bumps stay manual;
+#   the workflow only verifies the requested version matches what is committed.
+
+name: Publish Open VSX extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Exact version to publish (e.g. 0.49.1). Must match packages/vscode/package.json."
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-openvsx-extension
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Check publish token availability
+        env:
+          OPEN_VSX_TOKEN: ${{ secrets.OPEN_VSX_TOKEN }}
+        run: |
+          if [ -z "$OPEN_VSX_TOKEN" ]; then
+            echo "OPEN_VSX_TOKEN is not configured for this repository." >&2
+            exit 1
+          fi
+
+      - name: Verify version matches packages/vscode/package.json
+        env:
+          REQUESTED_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          set -euo pipefail
+          declared=$(node -p "require('./packages/vscode/package.json').version")
+          if [ "$declared" != "$REQUESTED_VERSION" ]; then
+            echo "packages/vscode/package.json version ($declared) does not match workflow input ($REQUESTED_VERSION)." >&2
+            echo "Bump the package.json version on the default branch first, then re-run." >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: npm run build:vscode
+
+      - name: Create VSIX package
+        run: |
+          mkdir -p dist
+          npm run package:vscode
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: leo-extension-openvsx-v${{ github.event.inputs.version }}
+          path: dist/leo-extension.vsix
+          if-no-files-found: error
+
+      - name: Publish extension to Open VSX
+        uses: HaaLeo/publish-vscode-extension@v2
+        with:
+          pat: ${{ secrets.OPEN_VSX_TOKEN }}
+          registryUrl: https://open-vsx.org
+          extensionFile: dist/leo-extension.vsix
+
+      - name: Write workflow summary
+        env:
+          VERSION: ${{ github.event.inputs.version }}
+        run: |
+          {
+            echo "## Open VSX publish complete"
+            echo
+            echo "- Extension: \`aleohq.leo-extension\`"
+            echo "- Version: \`$VERSION\`"
+            echo "- Registry: https://open-vsx.org/extension/aleohq/leo-extension"
+            echo "- Source branch: \`${{ github.event.repository.default_branch }}\`"
+            echo "- VSIX artifact: \`dist/leo-extension.vsix\`"
+          } >>"$GITHUB_STEP_SUMMARY"

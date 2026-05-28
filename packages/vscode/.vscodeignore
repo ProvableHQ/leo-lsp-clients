@@ -1,5 +1,6 @@
 src/**
 test/**
+out-tests/**
 tsconfig.json
 Developer.md
 generated-from-leo.json

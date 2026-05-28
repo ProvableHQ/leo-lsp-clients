@@ -57,6 +57,12 @@ The previous LSP-backed implementation is being replaced as part of the migratio
 
 Validation, completion, and related language features are not gone permanently. They are expected to return incrementally in future extension updates as the new Leo tooling stack lands.
 
+### 🖱️ Installing in Cursor
+
+Cursor is a downstream fork of VS Code that pulls extensions from [Open VSX](https://open-vsx.org/). The same `aleohq.leo-extension` VSIX ships to both registries.
+
+Open Cursor's Extensions pane (`Cmd+Shift+X`), search for **Leo**, and click Install. The extension activates on `.leo` files, registers syntax highlighting, and starts `leo-lsp` over stdio if a binary is discoverable on `PATH` — falling back to the client-side regex go-to-definition provider when it is not.
+
 ## 🚀 Quick Start
 
 Use the Leo CLI to create a new project
