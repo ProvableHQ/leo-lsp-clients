@@ -42,8 +42,8 @@ function resolveAntigravity(): { cli: string; electron: string } {
   console.error(
     "Antigravity IDE binary not found.\n" +
       "Install Antigravity from https://antigravity.google/ and complete the IDE\n" +
-      "install wizard (the Hub at /Applications/Antigravity.app is not enough on its\n" +
-      "own — the wizard installs /Applications/Antigravity IDE.app separately).\n" +
+      "install wizard. The Hub at /Applications/Antigravity.app is not enough on\n" +
+      "its own; the wizard installs /Applications/Antigravity IDE.app separately.\n" +
       "Alternatively export ANTIGRAVITY_CLI to the absolute path of the\n" +
       "`antigravity-ide` shell command (typically\n" +
       "/Applications/Antigravity IDE.app/Contents/Resources/app/bin/antigravity-ide on macOS)."

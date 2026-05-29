@@ -245,25 +245,23 @@ npx leo-lsp-smoke \
 
 Google Antigravity is a VS Code fork that consumes extensions from the same
 Open VSX registry Cursor uses. Antigravity reads from the existing
-`aleohq.leo-extension` Open VSX listing — there is no separate publish
+`aleohq.leo-extension` Open VSX listing; there is no separate publish
 workflow, no Antigravity-specific VSIX, and no Antigravity-specific manifest.
 PR 1's `.github/workflows/publish-openvsx-extension.yml` already covers both
 hosts in a single run.
 
 The only Antigravity-specific addition is a local-only self-validation
-harness that mirrors the Cursor harness. The desktop Antigravity IDE is the
-target; the headless `agy` CLI agent is a separate surface and is not
-covered here.
+harness that mirrors the Cursor harness.
 
 ### Hub vs IDE
 
 Antigravity ships as **two** app bundles on macOS, and the harness targets
 the second:
 
-- `/Applications/Antigravity.app` — the **Hub** launcher (Google's agent
+- `/Applications/Antigravity.app`: the **Hub** launcher (Google's agent
   shell). No VS Code engine, no `--install-extension` support. Cannot load
   this extension.
-- `/Applications/Antigravity IDE.app` — the **VS Code-style IDE fork** that
+- `/Applications/Antigravity IDE.app`: the **VS Code-style IDE fork** that
   loads extensions. Installed by the Hub's first-run wizard (which fetches
   from `https://antigravity-ide-auto-updater-974169037036.us-central1.run.app/...`).
   The harness drives this bundle exclusively. Its CLI shim is
@@ -271,7 +269,7 @@ the second:
   `Contents/MacOS/Electron`, and its user-data dir is `~/.antigravity-ide/`.
 
 If the harness reports "Antigravity IDE binary not found" but `Antigravity.app`
-exists, the wizard step has not completed — open the Hub and run it through.
+exists, the wizard step has not completed. Open the Hub and run it through.
 
 ### Antigravity smoke test
 
