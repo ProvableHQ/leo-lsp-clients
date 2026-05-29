@@ -22,6 +22,7 @@
     "validate:vscode": "npm run check && npm run test:prism",
     "validate:cursor": "npm run validate:cursor --workspace leo-extension",
     "validate:cursor:teardown": "node ./scripts/cursor/teardown.mjs",
+    "validate:antigravity": "npm run validate:antigravity --workspace leo-extension",
     "test:prism": "node --test tests/prism-grammar.test.mjs"
   }
 }

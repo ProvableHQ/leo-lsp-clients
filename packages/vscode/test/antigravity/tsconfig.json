@@ -1,0 +1,17 @@
+{
+  "extends": "../../../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "moduleResolution": "node",
+    "rootDir": "../..",
+    "outDir": "../../out-tests",
+    "sourceMap": true,
+    "types": ["node", "vscode", "mocha"]
+  },
+  "include": [
+    "../../test/antigravity/**/*.ts",
+    "../../test/_common/**/*.ts"
+  ]
+}

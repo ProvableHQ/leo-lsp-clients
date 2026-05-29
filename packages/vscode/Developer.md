@@ -240,3 +240,105 @@ npx leo-lsp-smoke \
   --file   "$(pwd)/packages/test-fixtures/samples/counter.leo" \
   --line   4 --char 8
 ```
+
+## Antigravity support
+
+Google Antigravity is a VS Code fork that consumes extensions from the same
+Open VSX registry Cursor uses. Antigravity reads from the existing
+`aleohq.leo-extension` Open VSX listing — there is no separate publish
+workflow, no Antigravity-specific VSIX, and no Antigravity-specific manifest.
+PR 1's `.github/workflows/publish-openvsx-extension.yml` already covers both
+hosts in a single run.
+
+The only Antigravity-specific addition is a local-only self-validation
+harness that mirrors the Cursor harness. The desktop Antigravity IDE is the
+target; the headless `agy` CLI agent is a separate surface and is not
+covered here.
+
+### Hub vs IDE
+
+Antigravity ships as **two** app bundles on macOS, and the harness targets
+the second:
+
+- `/Applications/Antigravity.app` — the **Hub** launcher (Google's agent
+  shell). No VS Code engine, no `--install-extension` support. Cannot load
+  this extension.
+- `/Applications/Antigravity IDE.app` — the **VS Code-style IDE fork** that
+  loads extensions. Installed by the Hub's first-run wizard (which fetches
+  from `https://antigravity-ide-auto-updater-974169037036.us-central1.run.app/...`).
+  The harness drives this bundle exclusively. Its CLI shim is
+  `Contents/Resources/app/bin/antigravity-ide`, its Electron binary is
+  `Contents/MacOS/Electron`, and its user-data dir is `~/.antigravity-ide/`.
+
+If the harness reports "Antigravity IDE binary not found" but `Antigravity.app`
+exists, the wizard step has not completed — open the Hub and run it through.
+
+### Antigravity smoke test
+
+`npm run validate:antigravity` builds the extension, packages a VSIX,
+compiles the test harness, and drives a real Antigravity IDE binary headless
+against the `packages/test-fixtures/samples/counter.leo` fixture.
+
+**Local-only / macOS-only.** Antigravity is not redistributable, so there is
+no CI lane that runs this. A maintainer runs both legs by hand on a macOS
+dev box.
+
+Prerequisites:
+
+- Install Antigravity from https://antigravity.google/ and complete the
+  Hub's IDE install wizard so `/Applications/Antigravity IDE.app` exists.
+  Alternatively export `ANTIGRAVITY_CLI` to the absolute path of the
+  `antigravity-ide` shell command.
+- The default macOS CLI path the harness resolves is
+  `/Applications/Antigravity IDE.app/Contents/Resources/app/bin/antigravity-ide`.
+
+Run the no-LSP leg from the monorepo root:
+
+```bash
+PATH=/usr/bin:/bin npm run validate:antigravity
+```
+
+The harness installs the freshly-built VSIX into
+`$TMPDIR/antigravity-it/` (isolated `--user-data-dir` and `--extensions-dir`),
+launches Antigravity headless, asserts the extension loads on `.leo`, and
+exercises the no-LSP fallback definition path.
+
+Output:
+
+- `PASS: Leo extension drove a real LSP request in Antigravity (logs in /tmp/antigravity-it/logs)`
+- `FAIL: <reason>; see /tmp/antigravity-it/logs/...`
+
+Your real Antigravity installation, extensions, and settings stay untouched.
+
+#### Exercising the real LSP path
+
+By default the harness runs the no-LSP fallback path. To exercise the full
+LSP handshake set `LEO_REQUIRE_LSP=1` and make sure a `leo-lsp` binary is
+discoverable on PATH:
+
+```bash
+cargo install --git https://github.com/ProvableHQ/leo leo-lsp --root /tmp/leo-cli
+PATH="/tmp/leo-cli/bin:$PATH" LEO_REQUIRE_LSP=1 npm run validate:antigravity
+```
+
+`LEO_REQUIRE_LSP=1` is enforced in two places:
+
+1. `runTest.ts` refuses to launch Antigravity unless a `leo-lsp` is
+   resolvable (via `LEO_LSP_PATH` or PATH) and the `leo-lsp-smoke`
+   pre-flight passes.
+2. The shared `driveAlternateElectron` helper greps the captured
+   `Leo Language Server` channel log for `Starting leo-lsp from` after
+   Antigravity exits, and fails the run if the line is absent.
+
+A successful leg-2 run proves all three layers: (a) the server itself
+answers `textDocument/definition` correctly (pre-flight), (b) the extension
+boots inside Antigravity and registers the language, (c) the extension
+actually launched `leo-lsp` from the host process (log-grep).
+
+#### Env var summary
+
+| Var | Effect |
+|-----|--------|
+| `ANTIGRAVITY_CLI` | Absolute path override for the `antigravity` CLI shim (default: macOS `/Applications/Antigravity.app/...`). |
+| `LEO_LSP_PATH` | Absolute path override for the `leo-lsp` binary used by the pre-flight. |
+| `LEO_REQUIRE_LSP=1` | Fail the run if no `leo-lsp` is resolvable or the pre-flight / channel-log assertions don't pass. |

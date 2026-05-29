@@ -9,3 +9,13 @@ Small Leo programs used by tests and smoke harnesses.
 - `samples/prism-regressions.leo` — input for the Prism grammar regression test (`npm run test:prism`). Not a positional fixture.
 
 Keep new fixtures small, syntactically valid, and self-contained.
+
+## Coordinate table
+
+The per-client harnesses cite this table when they assert a position. Both
+0-indexed (VS Code `Position`) and 1-indexed (`leo-lsp-smoke` CLI) values are
+listed so the call sites don't re-derive them.
+
+| Fixture                  | Symbol                  | 0-indexed (line, char) | 1-indexed (line, char) |
+|--------------------------|-------------------------|------------------------|------------------------|
+| `samples/counter.leo`    | `increment` declaration | `(3, 7)`               | `(4, 8)`               |
