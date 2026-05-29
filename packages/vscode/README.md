@@ -63,6 +63,19 @@ Cursor is a downstream fork of VS Code that pulls extensions from [Open VSX](htt
 
 Open Cursor's Extensions pane (`Cmd+Shift+X`), search for **Leo**, and click Install. The extension activates on `.leo` files, registers syntax highlighting, and starts `leo-lsp` over stdio if a binary is discoverable on `PATH` — falling back to the client-side regex go-to-definition provider when it is not.
 
+### 🪐 Installing in Antigravity
+
+Google Antigravity ([antigravity.google](https://antigravity.google/)) ships as **two macOS app bundles**:
+
+- `/Applications/Antigravity.app`: the **Hub launcher** (Google's agent shell). The installer drops this first.
+- `/Applications/Antigravity IDE.app`: the **VS Code-style IDE fork** that loads extensions. The Hub's first-run wizard installs this separately.
+
+If you only see `Antigravity.app`, the IDE half hasn't been installed yet. Re-open the Hub and complete its IDE install wizard.
+
+Once both are installed, open **Antigravity IDE** (not the Hub), then its Extensions pane, search for **Leo**, and click Install. The IDE consumes the same `aleohq.leo-extension` Open VSX listing as Cursor, so there is no separate Antigravity package or marketplace listing.
+
+The extension activates on `.leo` files, registers syntax highlighting, and starts `leo-lsp` over stdio if a binary is discoverable on `PATH`, falling back to the client-side regex go-to-definition provider when it is not.
+
 ## 🚀 Quick Start
 
 Use the Leo CLI to create a new project

@@ -95,9 +95,10 @@
     "package": "vsce package --no-dependencies -o ../../dist/leo-extension.vsix",
     "publish:extension": "vsce publish --no-dependencies -p $VSCODE_PUBLISHER_TOKEN",
     "publish:openvsx": "ovsx publish ../../dist/leo-extension.vsix --pat $OVSX_PAT",
-    "build:tests": "tsc -p ./test/cursor/tsconfig.json",
+    "build:tests": "tsc -p ./test/cursor/tsconfig.json && tsc -p ./test/antigravity/tsconfig.json",
     "ensure:dist": "node -e \"require('node:fs').mkdirSync('../../dist', { recursive: true })\"",
-    "validate:cursor": "npm run build && npm run ensure:dist && npm run package && npm run build:tests && node ./out-tests/test/cursor/runCursorTests.js"
+    "validate:cursor": "npm run build && npm run ensure:dist && npm run package && npm run build:tests && node ./out-tests/test/cursor/runCursorTests.js",
+    "validate:antigravity": "npm run build && npm run ensure:dist && npm run package && npm run build:tests && node ./out-tests/test/antigravity/runTest.js"
   },
   "extensionKind": [
     "ui",
