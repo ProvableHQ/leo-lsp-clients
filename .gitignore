@@ -140,3 +140,11 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 packages/vscode/vendor/
+
+# Rust build output (Zed extension, packages/zed)
+target/
+**/target/
+
+# Zed dev-extension build artifacts (written into packages/zed/ on `install dev extension`)
+packages/zed/extension.wasm
+packages/zed/grammars/

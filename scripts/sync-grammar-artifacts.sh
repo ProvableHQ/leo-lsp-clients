@@ -29,3 +29,36 @@ node ./scripts/generate-syntax-artifacts.mjs \
   --metadata "packages/vscode/generated-from-leo.json"
 
 echo "Generated Leo grammar artifacts from $LEO_REPO at $LEO_REF"
+
+# --- Zed extension: sync tree-sitter query files + pin the grammar rev ----
+# Zed loads .scm queries from the extension package (not the cloned grammar),
+# so they are tracked here as regenerated artifacts. The grammar itself is
+# fetched by Zed from ProvableHQ/leo at the rev pinned in extension.toml, which
+# we rewrite to the same resolved commit the rest of the artifacts came from.
+ZED_QUERY_DIR="packages/zed/languages/leo"
+ZED_MANIFEST="packages/zed/extension.toml"
+
+if [ -d "$ZED_QUERY_DIR" ]; then
+  RESOLVED_COMMIT="$(git -C "$LEO_REPO" rev-parse "${LEO_REF}^{commit}")"
+
+  # Copy the query files Zed consumes. highlights/indents exist upstream today;
+  # brackets/outline arrive with ProvableHQ/leo#29469 (next tag). Until then a
+  # missing source is a loud warning, not a failure, and the committed seed copy
+  # is left in place. Once #29469 is tagged, all four are always present and
+  # this tolerance can be tightened to a hard error.
+  for q in highlights indents brackets outline; do
+    src="tree-sitter/queries/$q.scm"
+    if git -C "$LEO_REPO" cat-file -e "${LEO_REF}:${src}" 2>/dev/null; then
+      git -C "$LEO_REPO" show "${LEO_REF}:${src}" >"$ZED_QUERY_DIR/$q.scm"
+      echo "  synced $ZED_QUERY_DIR/$q.scm from $LEO_REF"
+    else
+      echo "  WARNING: ${src} not found at $LEO_REF; keeping committed $q.scm (see ProvableHQ/leo#29469)" >&2
+    fi
+  done
+
+  # Rewrite the single `rev = "..."` line in extension.toml to the resolved commit.
+  if [ -f "$ZED_MANIFEST" ]; then
+    perl -i -pe "s/^(\s*rev\s*=\s*\")[0-9a-f]+(\".*)$/\${1}${RESOLVED_COMMIT}\${2}/" "$ZED_MANIFEST"
+    echo "  pinned $ZED_MANIFEST grammars.leo.rev = $RESOLVED_COMMIT"
+  fi
+fi

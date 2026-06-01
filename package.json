@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "build:vscode": "npm run build --workspace leo-extension",
+    "build:zed": "cd packages/zed && cargo build --release --target wasm32-wasip2",
     "check": "npm run typecheck --workspace leo-extension",
     "generate:prism": "node ./scripts/generate-prism-grammar.mjs --leo-repo ../leo --leo-ref HEAD",
     "generate:syntaxes": "node ./scripts/generate-syntax-artifacts.mjs --leo-repo ../leo --leo-ref HEAD",
@@ -23,6 +24,7 @@
     "validate:cursor": "npm run validate:cursor --workspace leo-extension",
     "validate:cursor:teardown": "node ./scripts/cursor/teardown.mjs",
     "validate:antigravity": "npm run validate:antigravity --workspace leo-extension",
+    "validate:zed": "bash packages/zed/scripts/validate.sh",
     "test:prism": "node --test tests/prism-grammar.test.mjs"
   }
 }

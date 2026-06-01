@@ -127,7 +127,9 @@ jobs:
           if git diff --quiet -- \
             packages/vscode/generated-from-leo.json \
             packages/shared/syntaxes/leo.tmLanguage.json \
-            packages/shared/syntaxes/prism-leo.js; then
+            packages/shared/syntaxes/prism-leo.js \
+            packages/zed/extension.toml \
+            packages/zed/languages/leo; then
             echo "has_changes=false" >>"$GITHUB_OUTPUT"
             exit 0
           fi
@@ -135,7 +137,9 @@ jobs:
           git add \
             packages/vscode/generated-from-leo.json \
             packages/shared/syntaxes/leo.tmLanguage.json \
-            packages/shared/syntaxes/prism-leo.js
+            packages/shared/syntaxes/prism-leo.js \
+            packages/zed/extension.toml \
+            packages/zed/languages/leo
           git commit -m "chore: sync Leo syntax from $TARGET_REF"
           git push --force-with-lease origin "$SYNC_BRANCH"
 
@@ -169,6 +173,7 @@ jobs:
           - regenerated \`packages/shared/syntaxes/leo.tmLanguage.json\`
           - regenerated \`packages/shared/syntaxes/prism-leo.js\`
           - updated \`packages/vscode/generated-from-leo.json\`
+          - re-pinned \`packages/zed/extension.toml\` grammar \`rev\` and synced \`packages/zed/languages/leo/*.scm\`
 
           ## Source
 
