@@ -142,10 +142,12 @@ License: **GPL-3.0**, the SPDX string used by the Leo Rust crates (`leo-lsp`,
 `leo-compiler`, …), matching the bundled `LICENSE.txt` and the repo root
 `LICENSE`. The spec §3.2's `Apache-2.0 OR MIT` was a mis-copy from the Sway/Fuel
 reference extension and was corrected to GPL-3.0 so the declared license matches
-the shipped text. (`Cargo.toml` `authors`/`license` are deliberately aligned to
-the Leo crate convention — `The Leo Team <leo@provable.com>` — rather than the
-`packages/shared/identity.md` vendor string; the Zed *marketplace* identity in
-`extension.toml` is the identity-canon surface.)
+the shipped text. The Zed package's `authors` — in **both** `Cargo.toml` and
+`extension.toml` — is deliberately aligned to the Leo Rust crate string
+`The Leo Team <leo@provable.com>` rather than the `packages/shared/identity.md`
+vendor (`Provable Inc. <support@provable.com>`). This is an explicit, documented
+exception to the identity canon (noted in `identity.md`), chosen so the Zed
+extension matches upstream `ProvableHQ/leo` metadata.
 
 ## Known risks (verify on Zed minor bumps)
 
