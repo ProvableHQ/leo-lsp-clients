@@ -205,7 +205,7 @@
       "patterns": [
         {
           "name": "keyword.control.leo",
-          "match": "\\b(?:constructor|assert_neq|assert_eq|interface|constant|mapping|network|private|program|storage|assert|import|public|record|return|struct|block|const|final|Final|aleo|else|self|for|let|as|fn|Fn|if|in)\\b"
+          "match": "\\b(?:constructor|assert_neq|assert_eq|interface|constant|mapping|network|private|program|storage|assert|import|public|record|return|struct|block|const|final|Final|aleo|else|self|view|for|let|as|fn|Fn|if|in)\\b"
         }
       ]
     },
