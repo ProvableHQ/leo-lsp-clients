@@ -19,27 +19,46 @@ packages/zed/
     indents.scm             # regenerated from upstream
     brackets.scm            # regenerated from upstream (see "Transitional state")
     outline.scm             # regenerated from upstream (see "Transitional state")
-  scripts/validate.sh       # headless install + LSP smoke validation
+  scripts/validate.sh       # builds the wasm + leo-lsp-smoke LSP-wire assertion
 ```
 
 ## Build & validate
 
 ```bash
 npm run build:zed       # cargo build --release --target wasm32-wasip2
-npm run validate:zed    # headless Zed install + leo-lsp-smoke + fallback checks
+npm run validate:zed    # build wasm + leo-lsp-smoke definition assertion
 ```
 
-`validate:zed` requires Zed installed in `/Applications` and `npm ci` run at the
-repo root (it shells the workspace-private `leo-lsp-smoke` / `discover-leo-lsp`
-CLIs). It builds the wasm, drops the extension into isolated `--user-data-dir`s,
-and asserts three discovery branches plus the graceful no-server fallback. Your
-real `~/Library/Application Support/Zed/` is never touched.
+`validate:zed` requires only `npm ci` at the repo root (it shells the
+workspace-private `leo-lsp-smoke` / `discover-leo-lsp` CLIs) and a `leo-lsp` on
+`PATH`/`$CARGO_HOME`. It (1) builds the extension for `wasm32-wasip2` and (2)
+drives a real `textDocument/definition` against `leo-lsp` via the shared smoke
+CLI. It does **not** install or launch Zed — see "Why validation doesn't drive a
+headless Zed" below.
 
-## Local dev install
+## Local dev install (the real extension-load verification)
 
 Command palette → **zed: install dev extension** → pick `packages/zed/`. Zed
-rebuilds the wasm via your rustup toolchain on change. (Rust must be installed
-via rustup, not Homebrew, or dev-extension installs fail.)
+compiles the wasm via your rustup toolchain, **component-encodes** it, fetches +
+builds the grammar from `ProvableHQ/leo`, and loads it; edits trigger a rebuild.
+(Rust must be installed via rustup, not Homebrew, or dev-extension installs
+fail.) This is the authoritative end-to-end check — confirmed on Zed 1.4.4:
+extension + grammar compile to wasm and `leo-lsp` spawns over stdio on a `.leo`
+file. Watch `~/Library/Logs/Zed/Zed.log` for `compiled grammar leo` and
+`starting language server process … leo-lsp`.
+
+### Why validation doesn't drive a headless Zed
+
+Zed installs a dev extension by compiling **and component-encoding** the wasm
+itself (the `install dev extension` command runs `wit-component` to turn the core
+module into a wasm *component*; the raw `cargo build` output is ~325 KB, the
+loaded component is ~1.1 MB). There is no headless/CLI equivalent of that
+encode+install step, and Zed's `--foreground` stdout does not surface extension
+load/LSP-spawn lines, so a scripted "open a file in headless Zed and grep the
+log" check can neither load the extension nor observe it. `validate.sh`
+therefore verifies the two things it *can* prove deterministically (the wasm
+builds for Zed's target; `leo-lsp` answers the wire), and extension load is
+verified by the manual dev-install above.
 
 ## Grammar pin & the regenerated query files
 
@@ -103,12 +122,6 @@ and was corrected to GPL-3.0 so the declared license matches the shipped text.
 
 ## Known risks (verify on Zed minor bumps)
 
-- `validate.sh` greps Zed's `--foreground` stdout for the leo-lsp spawn line.
-  That log format is undocumented; reconcile `SPAWN_RE` against a real run if a
-  Zed update changes it. The Pass-0 `leo-lsp-smoke` assertion and the Pass-2
-  clean-exit check do not depend on log strings.
-- The dev-extension install layout (`<user-data>/extensions/installed/<id>/`) is
-  assumed by `validate.sh`; re-check on Zed upgrades.
 - **Wasm target tracks Zed's builder, not us.** Zed compiles extensions for
   `wasm32-wasip2` (verified on Zed 1.4.4); older Zed used `wasm32-wasip1`. If a
   dev-extension install fails with `error[E0463]: can't find crate for 'core' …
@@ -116,3 +129,8 @@ and was corrected to GPL-3.0 so the declared license matches the shipped text.
   update `rust-toolchain.toml` `targets`, `package.json` `build:zed`,
   `validate.sh`, and `build-zed-extension.yml` to match, and `rustup target add`
   it. The spec's original `wasm32-wasip1` was stale for current Zed.
+- **No automated extension-load test.** Extension load + grammar build are only
+  exercised by the manual `zed: install dev extension` (see above), because Zed
+  has no headless encode+install path. When changing `src/lib.rs`, the manifest,
+  or the query files, re-run that manual install and confirm highlighting +
+  `leo-lsp` spawn before merging.

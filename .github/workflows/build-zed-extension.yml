@@ -12,7 +12,11 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    # Linux is sufficient: validate.sh builds the wasm and runs the leo-lsp-smoke
+    # LSP-wire assertion. It does NOT drive a headless Zed (Zed compiles +
+    # component-encodes a dev extension itself, with no headless/CLI equivalent;
+    # extension load is verified manually — see packages/zed/Developer.md).
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,15 +32,7 @@ jobs:
       - name: Build extension
         working-directory: packages/zed
         run: cargo build --release --target wasm32-wasip2
-      - name: Cache Zed for headless run
-        run: |
-          curl -L https://zed.dev/api/releases/stable/latest/Zed.dmg -o /tmp/Zed.dmg
-          hdiutil attach /tmp/Zed.dmg -nobrowse -quiet
-          cp -R "/Volumes/Zed/Zed.app" /Applications/
-          hdiutil detach "/Volumes/Zed" -quiet
       - name: Build leo-lsp from ProvableHQ/leo
         uses: ./.github/actions/build-leo-lsp
       - name: Validate
         run: bash packages/zed/scripts/validate.sh
-        env:
-          ZED_BIN: /Applications/Zed.app/Contents/MacOS/cli
