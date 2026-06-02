@@ -68,12 +68,35 @@ Leo release tag (dereference annotated tags with `git rev-parse '<tag>^{commit}'
 — `rev-parse <tag>` alone yields the tag-object sha, which is wrong). Zed clones
 that repo at `rev` and compiles `tree-sitter/` into the parser.
 
-The four `.scm` query files are extension-owned (Zed loads queries from the
-extension, not the grammar clone), tracked as **regenerated artifacts — never
-hand-edited**. They are synced by `scripts/sync-grammar-artifacts.sh`, which also
-rewrites `extension.toml`'s `rev`. `.github/workflows/watch-leo-tags.yml` commits
-all of it — the `rev`, the four queries, the VS Code TextMate JSON, and the Prism
-JS — in one PR so every artifact stays pinned to the same upstream commit.
+The four `.scm` query files are extension-owned, tracked as **regenerated
+artifacts — never hand-edited**. They are synced by
+`scripts/sync-grammar-artifacts.sh`, which also rewrites `extension.toml`'s
+`rev`. `.github/workflows/watch-leo-tags.yml` commits all of it — the `rev`, the
+four queries, the VS Code TextMate JSON, and the Prism JS — in one PR so every
+artifact stays pinned to the same upstream commit.
+
+### Why the queries are copied here even though they live in `ProvableHQ/leo` (unavoidable)
+
+This duplication looks redundant but is forced by Zed's extension model — there
+is no way to point Zed at the Leo repo's `queries/` directory:
+
+- **The grammar repo gives Zed only the *parser*.** From `[grammars.leo]` Zed
+  clones the repo at `rev` and compiles `<path>/src/parser.c` into a `.wasm`
+  parser. It does **not** read that repo's `queries/`. You can see this after a
+  dev install: Zed clones the grammar into `packages/zed/grammars/leo/` — upstream
+  `queries/*.scm` and all — then builds only `grammars/leo.wasm` and ignores the
+  cloned queries entirely.
+- **Queries are loaded from the extension**, i.e. `packages/zed/languages/<lang>/`.
+  Every Zed extension works this way (the Sway reference ships its own
+  `highlights.scm` despite `tree-sitter-sway` having queries).
+- **The marketplace build only ships committed files.** `zed-industries/extensions`
+  builds whatever is in `packages/zed/`; it does not run our sync script and has
+  no access to `../leo`, so uncommitted (or symlinked-to-`../leo`) queries would
+  simply be absent from the published extension.
+
+So the `.scm` files must physically live in `languages/leo/`. The sync just keeps
+those committed copies in lockstep with upstream — the same regenerated-artifact
+lifecycle as `leo.tmLanguage.json` / `prism-leo.js`.
 
 To regenerate from a specific release tag (not `HEAD`):
 
