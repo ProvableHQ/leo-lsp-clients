@@ -1,0 +1,15 @@
+[package]
+name = "leo-zed-extension"
+version = "0.1.0"
+authors = ["The Leo Team <leo@provable.com>"]
+description = "Leo language extension for the Zed editor"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo-lsp-clients"
+license = "GPL-3.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+zed_extension_api = "0.6.0"

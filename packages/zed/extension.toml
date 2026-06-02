@@ -1,0 +1,23 @@
+id = "leo"
+name = "Leo"
+description = "Leo language support: tree-sitter syntax + leo-lsp integration for Aleo smart contracts."
+version = "0.1.0"
+schema_version = 1
+authors = ["The Leo Team <leo@provable.com>"]
+repository = "https://github.com/ProvableHQ/leo-lsp-clients"
+
+# Grammar is fetched directly from upstream ProvableHQ/leo at the pinned commit;
+# `rev` is the resolved sha of a Leo release tag (here leo-lang-v4.1.0) and is
+# kept in sync by scripts/sync-grammar-artifacts.sh + .github/workflows/watch-leo-tags.yml.
+# Never set this to a branch name. See packages/zed/Developer.md.
+[grammars.leo]
+repository = "https://github.com/ProvableHQ/leo"
+rev = "9056dc2d8b08d30663def5c784f1ab39c1593075"
+path = "tree-sitter"
+
+[language_servers.leo-lsp]
+name = "Leo Language Server"
+languages = ["Leo"]
+
+[language_servers.leo-lsp.language_ids]
+"Leo" = "leo"

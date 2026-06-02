@@ -23,6 +23,14 @@ the handle is retained for continuity but the **display vendor** is
 `Provable Inc.` in every README, `LICENSE` header, and `description`
 metadata field.
 
+**Documented exception — Zed package (`packages/zed`).** The Zed extension's
+`authors` field, in both `Cargo.toml` and `extension.toml`, uses the upstream
+Leo Rust crate string `The Leo Team <leo@provable.com>` (as in `leo-lsp` /
+`leo-compiler`) rather than the `Provable Inc.` vendor above. This is a
+deliberate choice so the Zed crate + manifest match the upstream `ProvableHQ/leo`
+metadata it is published alongside. The `Provable Inc.` display vendor still
+applies to every other client's README/description/license surfaces.
+
 ## Language
 
 | Field | Value |

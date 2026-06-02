@@ -1,0 +1,38 @@
+name: build-zed-extension
+
+on:
+  pull_request:
+    paths:
+      - "packages/zed/**"
+      - ".github/workflows/build-zed-extension.yml"
+  push:
+    branches: [master]
+    paths:
+      - "packages/zed/**"
+
+jobs:
+  build:
+    # Linux is sufficient: validate.sh builds the wasm and runs the leo-lsp-smoke
+    # LSP-wire assertion. It does NOT drive a headless Zed (Zed compiles +
+    # component-encodes a dev extension itself, with no headless/CLI equivalent;
+    # extension load is verified manually — see packages/zed/Developer.md).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Node deps
+        # Required: validate.sh invokes the workspace-private leo-lsp-smoke /
+        # discover CLIs, which need node_modules (vscode-jsonrpc).
+        run: npm ci
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip2
+      - name: Build extension
+        working-directory: packages/zed
+        run: cargo build --release --target wasm32-wasip2
+      - name: Build leo-lsp from ProvableHQ/leo
+        uses: ./.github/actions/build-leo-lsp
+      - name: Validate
+        run: bash packages/zed/scripts/validate.sh

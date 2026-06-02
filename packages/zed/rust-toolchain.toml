@@ -1,0 +1,10 @@
+[toolchain]
+# Pinned to a concrete floor (not bare "stable") because Cargo.toml uses
+# edition = "2024", which requires Rust >= 1.85. A runner whose `stable`
+# predates 1.85 would fail the wasm build with a confusing edition error.
+channel = "1.85.0"
+# Zed (>= the wasip2 switch, e.g. 1.4.x) compiles extensions for wasm32-wasip2.
+# Listing it here makes rustup auto-provision the target for this toolchain on
+# `zed: install dev extension`, CI, and `npm run build:zed`.
+targets = ["wasm32-wasip2"]
+profile = "minimal"
