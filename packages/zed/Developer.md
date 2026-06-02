@@ -138,10 +138,14 @@ warning to a hard error.
 No signing/notarization — Zed extensions are sandboxed wasm; the registry PR is
 the trust gate.
 
-License: **GPL-3.0-only**, matching the bundled `LICENSE.txt`, the repo root
-`LICENSE`, and upstream Leo (`tree-sitter-leo` is `GPL-3.0-only`). The spec
-§3.2's `Apache-2.0 OR MIT` was a mis-copy from the Sway/Fuel reference extension
-and was corrected to GPL-3.0 so the declared license matches the shipped text.
+License: **GPL-3.0**, the SPDX string used by the Leo Rust crates (`leo-lsp`,
+`leo-compiler`, …), matching the bundled `LICENSE.txt` and the repo root
+`LICENSE`. The spec §3.2's `Apache-2.0 OR MIT` was a mis-copy from the Sway/Fuel
+reference extension and was corrected to GPL-3.0 so the declared license matches
+the shipped text. (`Cargo.toml` `authors`/`license` are deliberately aligned to
+the Leo crate convention — `The Leo Team <leo@provable.com>` — rather than the
+`packages/shared/identity.md` vendor string; the Zed *marketplace* identity in
+`extension.toml` is the identity-canon surface.)
 
 ## Known risks (verify on Zed minor bumps)
 
