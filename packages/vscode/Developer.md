@@ -1,12 +1,11 @@
 # Leo VS Code Extension
 
-This package contains the Leo 4.0 VS Code extension scaffold for the existing
-`aleohq.leo-extension` marketplace entry.
+This package contains the Leo VS Code extension for the existing `aleohq.leo-extension` Marketplace entry.
 
 ## Current Scope
 
 - Leo language registration for `.leo` files
-- Leo 4.0-aware TextMate fallback highlighting
+- TextMate fallback highlighting generated from the released Leo grammar
 - Optional `leo-lsp` startup when a local server binary is available
 - LSP-backed go-to-definition when `leo-lsp` advertises definition support
 - Approximate workspace-wide go-to-definition fallback when `leo-lsp` is unavailable
@@ -21,26 +20,20 @@ validation notes.
 
 ## Syncing Tree-Sitter Source
 
-For current testing before a Leo 4.0 release tag exists, fetch the latest Leo
-`master` in the sibling checkout and then run:
+To test an unreleased grammar, fetch the latest Leo `master` branch in the sibling checkout and run:
 
 ```bash
 git -C ../leo fetch origin master
 npm run sync:tree-sitter
 ```
 
-For the actual Leo 4.0 release process, sync from the Leo 4.0 release tag
-instead of from `master` so the extension ships against the released language
-syntax:
+For a release, sync from the corresponding `leo-lang` tag so that the extension uses the released language syntax:
 
 ```bash
-./scripts/sync-tree-sitter-from-leo.sh ../leo <leo-4.0-tag>
+./scripts/sync-grammar-artifacts.sh ../leo leo-lang-v4.4.1
 ```
 
-The plan is to test from `master` for now, then publish the updated
-`aleohq.leo-extension` marketplace package after Leo mainnet ships. Because the
-extension identity stays the same, existing VS Code users should receive the
-update automatically.
+The extension identity does not change, so existing VS Code users receive Marketplace updates automatically.
 
 ## Generated Syntax Artifacts
 
@@ -112,13 +105,12 @@ npm run package:vscode
 
 ## Manual Marketplace Publish
 
-Once `VSCODE_PUBLISHER_TOKEN` is configured for this repository, maintainers can
-publish from the Actions tab with `.github/workflows/publish-vscode-extension.yml`.
+Once `VSCODE_PUBLISHER_TOKEN` is configured for this repository, maintainers can publish from the Actions tab with `.github/workflows/publish-vscode-extension.yml`.
 
 The manual workflow:
 
 - checks out the default branch
-- requires an exact version input such as `0.49.1`
+- requires an exact version input such as `0.51.0`
 - builds the extension and uploads `dist/leo-extension.vsix`
 - publishes `aleohq.leo-extension` to the VS Code Marketplace
 - leaves the repository version untouched, so a follow-up commit can sync repo

@@ -1,9 +1,9 @@
 {
   "name": "leo-extension",
   "displayName": "Leo",
-  "version": "0.50.0",
+  "version": "0.51.0",
   "publisher": "aleohq",
-  "description": "The official VS Code extension for Leo",
+  "description": "The official VS Code extension for Leo, tested with leo-lsp 4.4.1",
   "license": "SEE LICENSE IN LICENSE.txt",
   "engines": {
     "vscode": "^1.82.0"
@@ -58,7 +58,7 @@
         "leo.languageServer.path": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Absolute or workspace-relative path to the `leo-lsp` executable. When unset, the extension searches common local development locations and `PATH`."
+          "markdownDescription": "Absolute or workspace-relative path to the `leo-lsp` executable. This release is tested with `leo-lsp` 4.4.1. When unset, the extension searches common local development locations and `PATH`."
         },
         "leo.languageServer.args": {
           "type": "array",

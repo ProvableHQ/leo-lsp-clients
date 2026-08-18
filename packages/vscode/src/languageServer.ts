@@ -9,6 +9,8 @@ const SERVER_COMMAND = "leo-lsp";
 const LANGUAGE_SERVER_PATH_SETTING = "languageServer.path";
 const LANGUAGE_SERVER_ARGS_SETTING = "languageServer.args";
 
+export const SUPPORTED_LEO_LSP_VERSION = "4.4.1";
+
 let client: LanguageClient | undefined;
 
 /**
@@ -39,7 +41,19 @@ export function activateLeoLanguageServer(
   client = languageClient;
   void languageClient.start().then(
     () => {
-      outputChannel.appendLine("leo-lsp started.");
+      const serverVersion = languageClient.initializeResult?.serverInfo?.version;
+      if (serverVersion === SUPPORTED_LEO_LSP_VERSION) {
+        outputChannel.appendLine(`leo-lsp ${serverVersion} started.`);
+      } else if (serverVersion) {
+        const compatibilityMessage =
+          `leo-lsp ${serverVersion} started. This extension is tested with leo-lsp ${SUPPORTED_LEO_LSP_VERSION}.`;
+        outputChannel.appendLine(compatibilityMessage);
+        void vscode.window.showWarningMessage(compatibilityMessage);
+      } else {
+        outputChannel.appendLine(
+          `leo-lsp started without reporting a version. This extension is tested with leo-lsp ${SUPPORTED_LEO_LSP_VERSION}.`
+        );
+      }
     },
     error => {
       outputChannel.appendLine(`Failed to start leo-lsp: ${describeError(error)}`);

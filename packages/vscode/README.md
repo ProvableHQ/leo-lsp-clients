@@ -51,6 +51,19 @@ Today it supports:
 - optional `leo-lsp` startup for semantic tokens and go-to-definition when the binary is installed locally
 - approximate client-side go-to-definition fallback when `leo-lsp` is unavailable
 
+### Install the language server
+
+This extension is tested with [`leo-lsp` 4.4.1](https://github.com/ProvableHQ/leo/releases/tag/leo-lsp-v4.4.1).
+
+Install the supported version from crates.io:
+
+```bash
+cargo install leo-lsp --version 4.4.1 --locked
+leo-lsp --version
+```
+
+The extension finds `leo-lsp` in the Cargo binary directory, on `PATH`, or at the path in the `leo.languageServer.path` setting. The extension continues with fallback definitions if the binary is not available.
+
 ### 🛠️ Migration Status
 
 The previous LSP-backed implementation is being replaced as part of the migration to faster Rust-based Leo tooling.

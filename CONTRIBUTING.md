@@ -20,10 +20,13 @@ npm run package:vscode
 
 ## Local Leo LSP Testing
 
-For local language-server validation, install `leo-lsp` so the executable is
-available on `PATH`, or point the extension at it explicitly with the
-`leo.languageServer.path` setting.
+For local language-server validation, install the supported `leo-lsp` version:
 
-When the extension finds `leo-lsp`, it starts the Rust language server over
-stdio. When it does not find the binary, the extension stays in its
-tree-sitter-derived fallback mode instead of failing activation.
+```bash
+cargo install leo-lsp --version 4.4.1 --locked
+leo-lsp --version
+```
+
+The executable must be available on `PATH`. You can also set `leo.languageServer.path` to its absolute path.
+
+When the extension finds `leo-lsp`, it starts the Rust language server over stdio. When it does not find the binary, the extension uses its tree-sitter-derived fallback mode.
