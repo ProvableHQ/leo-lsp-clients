@@ -7,12 +7,12 @@ authors = ["The Leo Team <leo@provable.com>"]
 repository = "https://github.com/ProvableHQ/leo-lsp-clients"
 
 # Grammar is fetched directly from upstream ProvableHQ/leo at the pinned commit;
-# `rev` is the resolved sha of a Leo release tag (here leo-lang-v4.1.0) and is
+# `rev` is the resolved sha of a Leo release tag (here leo-lang-v4.4.1) and is
 # kept in sync by scripts/sync-grammar-artifacts.sh + .github/workflows/watch-leo-tags.yml.
 # Never set this to a branch name. See packages/zed/Developer.md.
 [grammars.leo]
 repository = "https://github.com/ProvableHQ/leo"
-rev = "b52d7abf6cf56f63bc07681be40ca0e631e25349"
+rev = "b781b2daa2d82f355d9970d71eb3a68b0364dec1"
 path = "tree-sitter"
 
 [language_servers.leo-lsp]

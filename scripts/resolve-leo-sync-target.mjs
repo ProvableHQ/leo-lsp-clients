@@ -12,6 +12,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  compareVersions,
+  parseStableVersion,
+  shouldSyncTarget
+} from "./lib/leo-release-version.mjs";
+
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, "..");
 
@@ -52,10 +58,12 @@ const currentSourceRef = typeof metadata.sourceRef === "string" ? metadata.sourc
 const currentResolvedCommit =
   typeof metadata.resolvedCommit === "string" ? metadata.resolvedCommit : "";
 
-const shouldSync = explicitRef
-  ? currentSourceRef !== target.name
-  : currentSourceRef !== target.name &&
-    (!target.commitSha || currentResolvedCommit !== target.commitSha);
+const shouldSync = shouldSyncTarget({
+  explicitRef,
+  target,
+  currentSourceRef,
+  currentResolvedCommit
+});
 
 const result = {
   should_sync: shouldSync ? "true" : "false",
@@ -176,33 +184,6 @@ function buildHeaders(token) {
   }
 
   return headers;
-}
-
-function parseStableVersion(tagName) {
-  const cleaned = tagName.startsWith("v") ? tagName.slice(1) : tagName;
-  const parts = cleaned.split(".");
-
-  if (parts.length !== 3) {
-    return null;
-  }
-
-  const numbers = parts.map(part => Number.parseInt(part, 10));
-  if (numbers.some(number => Number.isNaN(number))) {
-    return null;
-  }
-
-  return numbers;
-}
-
-function compareVersions(left, right) {
-  for (let index = 0; index < Math.max(left.length, right.length); index += 1) {
-    const delta = (left[index] ?? 0) - (right[index] ?? 0);
-    if (delta !== 0) {
-      return delta;
-    }
-  }
-
-  return 0;
 }
 
 function writeGitHubOutputs(filePath, values) {

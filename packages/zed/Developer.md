@@ -104,26 +104,7 @@ To regenerate from a specific release tag (not `HEAD`):
 ./scripts/sync-grammar-artifacts.sh ../leo <leo-release-tag>
 ```
 
-## Transitional state (remove once ProvableHQ/leo#29469 is tagged)
-
-`brackets.scm` and `outline.scm` did not exist upstream when this extension
-landed. They were authored in [ProvableHQ/leo#29469](https://github.com/ProvableHQ/leo/pull/29469)
-and pre-seeded here from that PR's content, validated against the pinned
-grammar with `tree-sitter query`.
-
-Until #29469 is merged **and included in a Leo release tag**:
-
-- The current pin is `leo-lang-v4.1.0` (commit `9056dc2d…`), which is **newer**
-  than the `v4.0.2` the VS Code TextMate/Prism artifacts currently track
-  (`packages/vscode/generated-from-leo.json`). This skew is transient: the next
-  `watch-leo-tags` sync bumps every artifact to the same tag.
-- `sync-grammar-artifacts.sh` copies `highlights.scm`/`indents.scm` from the
-  pinned tag but only **warns** (keeps the committed seed) for the not-yet-tagged
-  `brackets.scm`/`outline.scm`.
-
-Once #29469 ships in a tag: bump the pin to that tag, run the sync (all four
-files now copy from upstream), and tighten the sync script's missing-file
-warning to a hard error.
+All four query files are available in the pinned Leo release. The sync stops with an error if a selected ref does not contain one of them. This rule prevents mixed-version generated artifacts.
 
 ## Release / marketplace
 

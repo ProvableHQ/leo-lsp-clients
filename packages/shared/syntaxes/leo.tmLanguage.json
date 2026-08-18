@@ -78,7 +78,7 @@
       "patterns": [
         {
           "name": "constant.numeric.leo",
-          "match": "(?:[0-9][0-9A-Za-z_]*(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0b[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0o[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0x[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|[0-9][0-9_]*scalar|[0-9][0-9_]*field|[0-9][0-9_]*group)"
+          "match": "(?:[0-9][0-9A-Za-z_]*(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0b[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0o[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0x[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|[0-9][0-9A-Za-z_]*scalar|[0-9][0-9A-Za-z_]*field|[0-9][0-9A-Za-z_]*group)"
         }
       ]
     },
@@ -205,7 +205,7 @@
       "patterns": [
         {
           "name": "keyword.control.leo",
-          "match": "\\b(?:constructor|assert_neq|assert_eq|interface|constant|mapping|network|private|program|storage|assert|import|public|record|return|struct|block|const|final|Final|aleo|else|self|view|for|let|as|fn|Fn|if|in)\\b"
+          "match": "\\b(?:constructor|assert_neq|assert_eq|interface|constant|mapping|network|private|program|storage|assert|export|import|public|record|return|struct|block|const|final|Final|aleo|else|self|view|dyn|for|let|as|fn|Fn|if|in)\\b"
         }
       ]
     },
@@ -233,7 +233,7 @@
       "patterns": [
         {
           "name": "keyword.operator.leo",
-          "match": "(?:\\b(?:as)\\b|\\.\\.=|\\*\\*=|&&=|<<=|>>=|\\|\\|=|\\-=|!=|\\.\\.|\\*\\*|\\*=|/=|&&|&=|%=|\\^=|\\+=|<<|<=|==|>=|>>|\\|=|\\|\\||\\-|!|\\?|\\*|/|&|%|\\^|\\+|<|=|>|\\|)"
+          "match": "(?:\\b(?:as)\\b|\\.\\.=|\\*\\*=|&&=|<<=|>>=|\\|\\|=|\\-=|!=|\\.\\.|\\*\\*|\\*=|/=|&&|&=|%=|\\^=|\\+=|<<|<=|==|>=|>>|\\|=|\\|\\||\\-|!|\\?|@|\\*|/|&|%|\\^|\\+|<|=|>|\\|)"
         }
       ]
     },

@@ -1,7 +1,7 @@
 // Generated from Leo tree-sitter syntax data. Do not edit by hand.
 // Source repo: ProvableHQ/leo
-// Source ref: leo-lang-v4.3.0
-// Resolved commit: b52d7abf6cf56f63bc07681be40ca0e631e25349
+// Source ref: leo-lang-v4.4.1
+// Resolved commit: b781b2daa2d82f355d9970d71eb3a68b0364dec1
 
 Prism.languages.leo = {
   "comment": [
@@ -31,7 +31,7 @@ Prism.languages.leo = {
     "alias": "string"
   },
   "number": {
-    "pattern": new RegExp("(^|[^A-Za-z0-9_])(?:(?:[0-9][0-9A-Za-z_]*(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0b[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0o[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0x[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|[0-9][0-9_]*scalar|[0-9][0-9_]*field|[0-9][0-9_]*group))(?![A-Za-z0-9_])"),
+    "pattern": new RegExp("(^|[^A-Za-z0-9_])(?:(?:[0-9][0-9A-Za-z_]*(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0b[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0o[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|0x[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?|[0-9][0-9A-Za-z_]*scalar|[0-9][0-9A-Za-z_]*field|[0-9][0-9A-Za-z_]*group))(?![A-Za-z0-9_])"),
     "lookbehind": true
   },
   "program-id": {
@@ -75,7 +75,7 @@ Prism.languages.leo = {
       }
     }
   ],
-  "keyword": new RegExp("\\b(?:assert_neq|assert_eq|interface|mapping|network|program|storage|assert|import|record|return|struct|block|const|final|Final|aleo|else|self|view|for|let|as|fn|Fn|if|in)\\b"),
+  "keyword": new RegExp("\\b(?:assert_neq|assert_eq|interface|mapping|network|program|storage|assert|export|import|record|return|struct|block|const|final|Final|aleo|else|self|view|dyn|for|let|as|fn|Fn|if|in)\\b"),
   "type-keyword": new RegExp("\\b(?:identifier|signature|address|scalar|string|field|group|bool|i128|u128|i16|i32|i64|u16|u32|u64|i8|u8)\\b"),
   "bool-keyword": new RegExp("\\b(?:false|true)\\b"),
   "builtin-constant": [
@@ -95,6 +95,6 @@ Prism.languages.leo = {
     },
     new RegExp("(?:[a-zA-Z][a-zA-Z0-9_]*|_[a-zA-Z][a-zA-Z0-9_]*)(?=\\s*(?:\\(|::\\[))")
   ],
-  "operator": new RegExp("(?:\\b(?:as)\\b|\\.\\.=|\\*\\*=|&&=|<<=|>>=|\\|\\|=|\\-=|!=|\\.\\.|\\*\\*|\\*=|/=|&&|&=|%=|\\^=|\\+=|<<|<=|==|>=|>>|\\|=|\\|\\||\\-|!|\\?|\\*|/|&|%|\\^|\\+|<|=|>|\\|)"),
+  "operator": new RegExp("(?:\\b(?:as)\\b|\\.\\.=|\\*\\*=|&&=|<<=|>>=|\\|\\|=|\\-=|!=|\\.\\.|\\*\\*|\\*=|/=|&&|&=|%=|\\^=|\\+=|<<|<=|==|>=|>>|\\|=|\\|\\||\\-|!|\\?|@|\\*|/|&|%|\\^|\\+|<|=|>|\\|)"),
   "punctuation": new RegExp("(?:\\->|::|=>|,|;|:|\\.|\\(|\\)|\\[|\\]|\\{|\\}|@)")
 };

@@ -20,11 +20,12 @@
     "publish:openvsx": "npm run publish:openvsx --workspace leo-extension",
     "sync:tree-sitter": "./scripts/sync-grammar-artifacts.sh ../leo HEAD",
     "validate": "npm run validate:vscode",
-    "validate:vscode": "npm run check && npm run test:prism",
+    "validate:vscode": "npm run check && npm run test:prism && npm run test:tag-sync",
     "validate:cursor": "npm run validate:cursor --workspace leo-extension",
     "validate:cursor:teardown": "node ./scripts/cursor/teardown.mjs",
     "validate:antigravity": "npm run validate:antigravity --workspace leo-extension",
     "validate:zed": "bash packages/zed/scripts/validate.sh",
-    "test:prism": "node --test tests/prism-grammar.test.mjs"
+    "test:prism": "node --test tests/prism-grammar.test.mjs",
+    "test:tag-sync": "node --test tests/leo-release-version.test.mjs"
   }
 }
