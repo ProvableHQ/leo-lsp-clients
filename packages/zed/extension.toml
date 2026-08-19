@@ -12,7 +12,7 @@ repository = "https://github.com/ProvableHQ/leo-lsp-clients"
 # Never set this to a branch name. See packages/zed/Developer.md.
 [grammars.leo]
 repository = "https://github.com/ProvableHQ/leo"
-rev = "b781b2daa2d82f355d9970d71eb3a68b0364dec1"
+rev = "f3578da035676364817aa7dffa9d21ecc3cd9dc4"
 path = "tree-sitter"
 
 [language_servers.leo-lsp]

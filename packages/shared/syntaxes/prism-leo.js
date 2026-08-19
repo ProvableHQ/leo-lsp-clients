@@ -1,7 +1,7 @@
 // Generated from Leo tree-sitter syntax data. Do not edit by hand.
 // Source repo: ProvableHQ/leo
-// Source ref: leo-lang-v4.4.1
-// Resolved commit: b781b2daa2d82f355d9970d71eb3a68b0364dec1
+// Source ref: leo-lang-v4.4.2
+// Resolved commit: f3578da035676364817aa7dffa9d21ecc3cd9dc4
 
 Prism.languages.leo = {
   "comment": [

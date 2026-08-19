@@ -1,6 +1,6 @@
 {
   "sourceRepo": "ProvableHQ/leo",
   "sourcePath": "tree-sitter",
-  "sourceRef": "leo-lang-v4.4.1",
-  "resolvedCommit": "b781b2daa2d82f355d9970d71eb3a68b0364dec1"
+  "sourceRef": "leo-lang-v4.4.2",
+  "resolvedCommit": "f3578da035676364817aa7dffa9d21ecc3cd9dc4"
 }
